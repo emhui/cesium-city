@@ -5,8 +5,14 @@
 <script>
 var Cesium = require("cesium/Cesium");
 export default {
-  props: ["viewer"],
+  props: ["viewer", "data"],
+  data() {
+    return {
+      rivers: []
+    };
+  },
   mounted() {
+    console.log(this.data);
     this.addRiver();
   },
   methods: {
@@ -18,8 +24,27 @@ export default {
         canvas: scene.canvas,
         clampToGround: true
       };
-      var geocachePromise = Cesium.KmlDataSource.load(
-        this.$baseUrl + "data/river4.kml",
+
+      this.data.forEach(element => {
+        if (element.type === "river") {
+          this.viewer.dataSources
+            .add(Cesium.KmlDataSource.load(element.url, kmlOptions))
+            .then(dataSource => {
+              dataSource.entities.values.forEach(entity => {
+                if (entity.polygon) {
+                  console.log(entity);
+                  entity.polygon.material = Cesium.Color.DEEPSKYBLUE.withAlpha(
+                    0.5
+                  );
+                }
+              });
+            });
+        }
+      });
+      /*       var geocachePromise = Cesium.KmlDataSource.load(
+        "http://localhost:8080/public/river/ningbo_river_2.kml",
+        // this.$baseUrl + "data/river4.kml",
+        // "http://localhost:8080/public/river/ningbo_river_2_LayerToKML.kmz",
         kmlOptions
       );
 
@@ -28,15 +53,26 @@ export default {
           type: "Water",
           uniforms: {
             normalMap: this.$baseUrl + "data/water.jpg",
-            
             frequency: 100.0,
             animationSpeed: 0.01,
             amplitude: 10.0
           }
         }
       });
-
-      geocachePromise.then(dataSource => {
+      this.viewer.dataSources.add(geocachePromise).then(dataSource => {
+        console.log(dataSource);
+        dataSource.entities.values.forEach(entity => {
+          if (entity.polygon) {
+            console.log(entity);
+            entity.polygon.material = Cesium.Color.DEEPSKYBLUE.withAlpha(0.5);
+            // "http://localhost:8080/public/water.jpg"
+            //Cesium.Color.fromBytes(0,191,255,100)
+            // Cesium.Color.RED.withAlpha(0.5)
+            // Cesium.Color.fromBytes(102, 255,230,0.5)
+          }
+        });
+      }); */
+      /*       geocachePromise.then(dataSource => {
         // this.dataSource.add(dataSource);
         console.log(dataSource);
         
@@ -70,7 +106,7 @@ export default {
             scene.primitives.add(this.River1);
           }
         });
-      });
+      }); */
     }
   }
 };

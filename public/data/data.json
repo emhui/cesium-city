@@ -1,0 +1,30 @@
+[
+    {
+        "id" : "0",
+        "name": "水站-建筑",
+        "type": "3dtileset",
+        "url" : "http://127.0.0.1:8080/public/zz-building/tileset.json",
+        "desc" : "type和url是必须配置的，其他暂时可不配置。可能会有跨域问题，需要在服务器端解决"
+    },
+    {
+        "id" : "1",
+        "name": "水站-结构",
+        "type": "3dtileset",
+        "url" : "http://127.0.0.1:8080/public/zz-struct/tileset.json",
+        "desc" : "type和url是必须配置的，其他暂时可不配置"
+    },
+    {
+        "id" : "2",
+        "name": "宁波-地形",
+        "type": "terrain",
+        "url" : "http://127.0.0.1:8080/public/terrain/",
+        "desc" : "地形数据的url链接是地形的根目录"
+    },
+    {
+        "id" : "3",
+        "name": "宁波-河流",
+        "type": "river",
+        "url" : "http://127.0.0.1:8080/public/river/ningbo_river_2.kml",
+        "desc" : "河流引用的是kml数据"
+    }
+]

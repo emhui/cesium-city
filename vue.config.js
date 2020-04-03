@@ -28,10 +28,10 @@ module.exports = {
             }
         },
         plugins: [
-            new CopyWebpackPlugin([ { from: path.join(cesiumSource, cesiumWorkers), to: 'Workers'}]),
-            new CopyWebpackPlugin([ { from: path.join(cesiumSource, 'Assets'), to: 'Assets'}]),
-            new CopyWebpackPlugin([ { from: path.join(cesiumSource, 'Widgets'), to: 'Widgets'}]),
-            new CopyWebpackPlugin([ { from: path.join(cesiumSource, 'ThirdParty/Workers'), to: 'ThirdParty/Workers'}]),
+            new CopyWebpackPlugin([{ from: path.join(cesiumSource, cesiumWorkers), to: 'Workers' }]),
+            new CopyWebpackPlugin([{ from: path.join(cesiumSource, 'Assets'), to: 'Assets' }]),
+            new CopyWebpackPlugin([{ from: path.join(cesiumSource, 'Widgets'), to: 'Widgets' }]),
+            new CopyWebpackPlugin([{ from: path.join(cesiumSource, 'ThirdParty/Workers'), to: 'ThirdParty/Workers' }]),
             new webpack.DefinePlugin({
                 CESIUM_BASE_URL: JSON.stringify('./')
             })
@@ -41,5 +41,16 @@ module.exports = {
             unknownContextCritical: false
 
         }
-    }
+    },
+
+/*     devServer: {
+        proxy: {
+            "/proxy": {
+                "target": "http://127.0.0.1:8080/",
+                "pathRewrite": {
+                    "^/proxy": ""
+                }
+            }
+        }
+    } */
 }

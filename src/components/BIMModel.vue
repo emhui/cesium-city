@@ -20,23 +20,25 @@
 
 <script>
 // import Cesium from "cesium/Cesium";
+import {ZMPositions} from "../utils/zmPosition"
 
 var Cesium = require("cesium/Cesium");
 
 export default {
-  props: ["viewer"],
+  props: ["data", "viewer"],
   data() {
     return {
       modelPosition: {
         longitude: 121.3939949,
         latitude: 29.986037,
-        height: -10
+        height: 10
       },
-      defaultHeight: 11,
-      zmMinHeight: 16,
-      zmMaxHeight: 21,
+      defaultHeight: 0,
+      zmMinHeight: 6,
+      zmMaxHeight: 11,
       delayHeight: 1,
       currentHeight: 16,
+      // 改用json文件加载进来
       zmPositions: [
         121.39856755800847,
         29.98381214286895,
@@ -55,19 +57,29 @@ export default {
   mounted() {
     this.addBIM();
     this.tileset.readyPromise.then(tileset => {
-      this.modifyHeight();
+      // this.modifyHeight();
       this.createZM();
+      // this.addColor()
     });
   },
   methods: {
     addBIM() {
-      this.tileset = this.viewer.scene.primitives.add(
-        new Cesium.Cesium3DTileset({
-          url: this.$baseUrl + "data/zz-building/tileset.json",
-          modelMatrix: new Cesium.Matrix4()
-        })
-      );
-      // console.log(this.$baseUrl);
+      this.data.forEach(element => {
+        if (element.type === "3dtileset") {
+          this.tileset = this.viewer.scene.primitives.add(
+            new Cesium.Cesium3DTileset({
+              url: element.url
+            })
+          );
+        }
+      })
+    },
+    addColor() {
+      var defaultStyle = new Cesium.Cesium3DTileStyle({
+        color: "color('white')",
+        show: true
+      });
+      this.tileset.style = defaultStyle;
     },
     modifyHeight() {
       var boundingSphere = this.tileset.boundingSphere; // 获取模型的边界范围
@@ -81,8 +93,8 @@ export default {
         0.0
       ); // 模型的经纬度+0高度坐标转乘笛卡尔坐标
       var offset = Cesium.Cartesian3.fromDegrees(
-        this.modelPosition.longitude,
-        this.modelPosition.latitude,
+        cartographic.longitude,
+        cartographic.latitude,
         this.defaultHeight
       );
 
@@ -128,8 +140,11 @@ export default {
       this.zm.polygon.height = property;
     },
     flyZM() {
-      this.viewer.zoomTo(this.tileset);
-    },
+      this.viewer.flyTo(this.tileset);
+      /*       this.viewer.camera.flyTo({
+        destination : Cesium.Cartesian3.fromDegrees(121.3939949, 29.986037,2000)
+      }) */
+    }
   }
 };
 </script>
