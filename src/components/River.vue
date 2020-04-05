@@ -4,8 +4,10 @@
 
 <script>
 var Cesium = require("cesium/Cesium");
+
+let viewer = null
 export default {
-  props: ["viewer", "data"],
+  props: ["data"],
   data() {
     return {
       rivers: []
@@ -17,7 +19,8 @@ export default {
   },
   methods: {
     addRiver() {
-      var scene = this.viewer.scene;
+      viewer = this.$store.state.viewer
+      var scene = viewer.scene;
 
       var kmlOptions = {
         camera: scene.camera,
@@ -27,7 +30,7 @@ export default {
 
       this.data.forEach(element => {
         if (element.type === "river") {
-          this.viewer.dataSources
+          viewer.dataSources
             .add(Cesium.KmlDataSource.load(element.url, kmlOptions))
             .then(dataSource => {
               dataSource.entities.values.forEach(entity => {

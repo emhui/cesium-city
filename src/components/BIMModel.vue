@@ -24,8 +24,9 @@ import {ZMPositions} from "../utils/zmPosition"
 
 var Cesium = require("cesium/Cesium");
 
+let viewer = null
 export default {
-  props: ["data", "viewer"],
+  props: ["data"],
   data() {
     return {
       modelPosition: {
@@ -64,9 +65,10 @@ export default {
   },
   methods: {
     addBIM() {
+      viewer = this.$store.state.viewer
       this.data.forEach(element => {
         if (element.type === "3dtileset") {
-          this.tileset = this.viewer.scene.primitives.add(
+          this.tileset = viewer.scene.primitives.add(
             new Cesium.Cesium3DTileset({
               url: element.url
             })
@@ -107,7 +109,8 @@ export default {
       this.tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation); // 从一个笛卡尔坐标创建一个matrix4的实例
     },
     createZM() {
-      this.zm = this.viewer.entities.add({
+      viewer = this.$store.state.viewer
+      this.zm = viewer.entities.add({
         polygon: {
           // hierarchy 定义多边形的结构
           hierarchy: Cesium.Cartesian3.fromDegreesArray(this.zmPositions),
@@ -140,7 +143,8 @@ export default {
       this.zm.polygon.height = property;
     },
     flyZM() {
-      this.viewer.flyTo(this.tileset);
+      viewer = this.$store.state.viewer
+      viewer.flyTo(this.tileset);
       /*       this.viewer.camera.flyTo({
         destination : Cesium.Cartesian3.fromDegrees(121.3939949, 29.986037,2000)
       }) */

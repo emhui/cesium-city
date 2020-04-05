@@ -20,8 +20,8 @@
 <script>
 var Cesium = require("cesium/Cesium");
 
+let viewer = null
 export default {
-  props: ["viewer"],
   data() {
     return {
       status: false
@@ -38,7 +38,8 @@ export default {
       }
     },
     initPartileSystem() {
-      var scene = this.viewer.scene;
+      viewer = this.$store.state.viewer
+      var scene = viewer.scene;
       var rainParticleSize = 15.0;
       var rainRadius = 100000.0;
       var rainGravityScratch = new Cesium.Cartesian3();
@@ -135,30 +136,34 @@ export default {
 ";
     },
     showRain() {
+      viewer = this.$store.state.viewer
       this.removeStage();
       var e = new Cesium.PostProcessStage({
         name: "czm_rain",
         fragmentShader: this.getRainShader()
       });
-      this.viewer.scene.postProcessStages.add(e), (this.lastStage = e);
+      viewer.scene.postProcessStages.add(e), (this.lastStage = e);
     },
     removeStage() {
-      this.lastStage && this.viewer.scene.postProcessStages.remove(this.lastStage),
+      viewer = this.$store.state.viewer
+      this.lastStage && viewer.scene.postProcessStages.remove(this.lastStage),
         (this.lastStage = null);
     },
     rainCircumstance() {
-      this.viewer.scene.skyAtmosphere.hueShift = -0.8;
-      this.viewer.scene.skyAtmosphere.saturationShift = -0.7;
-      this.viewer.scene.skyAtmosphere.brightnessShift = -0.33;
-      this.viewer.scene.fog.density = 0.001;
-      this.viewer.scene.fog.minimumBrightness = 0.8;
+      viewer = this.$store.state.viewer
+      viewer.scene.skyAtmosphere.hueShift = -0.8;
+      viewer.scene.skyAtmosphere.saturationShift = -0.7;
+      viewer.scene.skyAtmosphere.brightnessShift = -0.33;
+      viewer.scene.fog.density = 0.001;
+      viewer.scene.fog.minimumBrightness = 0.8;
     },
     normalCircumstance() {
-      this.viewer.scene.skyAtmosphere.hueShift = 0;
-      this.viewer.scene.skyAtmosphere.saturationShift = 0;
-      this.viewer.scene.skyAtmosphere.brightnessShift = 0;
-      this.viewer.scene.fog.density = 2e-4;
-      this.viewer.scene.fog.minimumBrightness = 0.03;
+      viewer = this.$store.state.viewer
+      viewer.scene.skyAtmosphere.hueShift = 0;
+      viewer.scene.skyAtmosphere.saturationShift = 0;
+      viewer.scene.skyAtmosphere.brightnessShift = 0;
+      viewer.scene.fog.density = 2e-4;
+      viewer.scene.fog.minimumBrightness = 0.03;
     }
   }
 };
