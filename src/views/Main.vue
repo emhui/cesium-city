@@ -2,9 +2,10 @@
   <div id="cesiumContainer">
     <div v-if="loaded">
       <bottom-info :viewer="viewer"></bottom-info>
-      <river-model :data="data" :viewer="viewer"></river-model>
+<!--       <river-model :data="data" :viewer="viewer"></river-model> -->
       <bim-model :data="data" :viewer="viewer"></bim-model>
       <rain-model :data="data" :viewer="viewer"></rain-model>
+      <label-model :viewer="viewer"></label-model>
     </div>
   </div>
 </template>
@@ -104,7 +105,8 @@ export default {
     BottomInfo: () => import("../components/BottomInfo"),
     BimModel: () => import("../components/BIMModel"),
     RiverModel: () => import("../components/River"),
-    RainModel: () => import("../components/Rain")
+    RainModel: () => import("../components/Rain"),
+    LabelModel: () => import("../components/Lable")
   }
 };
 </script>

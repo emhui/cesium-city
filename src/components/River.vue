@@ -22,7 +22,7 @@ export default {
       var kmlOptions = {
         camera: scene.camera,
         canvas: scene.canvas,
-        clampToGround: true
+        clampToGround: false
       };
 
       this.data.forEach(element => {
