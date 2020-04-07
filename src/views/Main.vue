@@ -1,11 +1,12 @@
 <template>
   <div id="cesiumContainer">
     <div v-if="loaded">
-      <bottom-info :viewer="viewer"></bottom-info>
-<!--       <river-model :data="data" :viewer="viewer"></river-model> -->
-      <bim-model :data="data" :viewer="viewer"></bim-model>
-      <rain-model :data="data" :viewer="viewer"></rain-model>
-      <label-model :viewer="viewer"></label-model>
+      <bottom-info></bottom-info>
+      <river-model :data="data"></river-model>
+      <bim-model :data="data"></bim-model>
+      <rain-model :data="data"></rain-model>
+      <label-model></label-model>
+      <water-level :data="data"></water-level>
     </div>
   </div>
 </template>
@@ -13,6 +14,7 @@
 <script>
 var Cesium = require("cesium/Cesium");
 
+let viewer = null;
 export default {
   data() {
     return {
@@ -26,7 +28,6 @@ export default {
         pitch: -30, // 俯视角，负值向下俯视 -30作用效果不错
         roll: 0 // 翻转效果
       },
-      viewer: this.viewer,
       loaded: false
     };
   },
@@ -40,21 +41,23 @@ export default {
   },
   methods: {
     initViewer() {
-      this.viewer = new Cesium.Viewer("cesiumContainer", {
+      viewer = new Cesium.Viewer("cesiumContainer", {
         scene3DOnly: true,
         selectionIndicator: false,
         baseLayerPicker: false,
         timeline: false,
         animation: false
       });
-      this.loaded = true
-      this.viewer.terrainProvider = this.addTerrain();
+      this.loaded = true;
+      viewer.terrainProvider = this.addTerrain();
       this.setInitPosistion();
-      this.viewer.extend(Cesium.viewerCesiumInspectorMixin);
-      // this.viewer.scene.globe.depthTestAgainstTerrain = false;
+      viewer.extend(Cesium.viewerCesiumInspectorMixin);
+      this.$store.state.viewer = viewer;
+      // 关闭这个防止水和BIM模型被遮挡
+      viewer.scene.globe.depthTestAgainstTerrain = false;
     },
     setTerrain() {
-      this.viewer.terrainProvider = Cesium.createWorldTerrain({
+      viewer.terrainProvider = Cesium.createWorldTerrain({
         requestWaterMask: true,
         requestVertexNormals: true
       });
@@ -86,7 +89,7 @@ export default {
           roll: initialOrientation.roll
         }
       };
-      this.viewer.scene.camera.setView(homeCameraView);
+      viewer.scene.camera.setView(homeCameraView);
     },
     addTerrain() {
       console.log(this.data);
@@ -106,7 +109,8 @@ export default {
     BimModel: () => import("../components/BIMModel"),
     RiverModel: () => import("../components/River"),
     RainModel: () => import("../components/Rain"),
-    LabelModel: () => import("../components/Lable")
+    LabelModel: () => import("../components/Lable"),
+    WaterLevel: () => import("../components/WaterLevel")
   }
 };
 </script>

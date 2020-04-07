@@ -18,27 +18,44 @@
 </template>
 
 <script>
+import Bus from "../store/eventBus";
+import { mapState, mapMutations } from 'vuex'
+
 var Cesium = require("cesium/Cesium");
+let viewer = null;
 
 export default {
-  props: ["viewer"],
   data() {
     return {
-      status: false
+      status: false, // 是否下雨的状态
+      rainInterval: null // 设置一个下雨定时器
     };
   },
   mounted() {},
   methods: {
     onClick(event) {
-      console.log(event.target.checked);
       if (event.target.checked) {
+        // 下雨就通知水位在上升
+          this.startRainInterval()
         this.showRain();
       } else {
+        this.clearRainInterval()
         this.removeStage();
       }
     },
+    startRainInterval() {
+      this.rainInterval = setInterval(() => {
+        this.addWaterHeight()
+        // Bus.$emit("water-height-up");
+      }, 1000);
+    },
+    clearRainInterval() {
+      clearInterval(this.rainInterval);
+      this.rainInterval = null;
+    },
     initPartileSystem() {
-      var scene = this.viewer.scene;
+      viewer = this.$store.state.viewer;
+      var scene = viewer.scene;
       var rainParticleSize = 15.0;
       var rainRadius = 100000.0;
       var rainGravityScratch = new Cesium.Cartesian3();
@@ -94,16 +111,16 @@ export default {
     startRain() {
       // rain
       // 粒子更新函数
-/*       this.initPartileSystem();
+      /*       this.initPartileSystem();
       this.viewer.scene.primitives.add(this.rainSystem); */
-      this.showRain()
-      this.rainCircumstance()
+      this.showRain();
+      this.rainCircumstance();
     },
     stopRain() {
-/*       this.viewer.scene.primitives.remove(this.rainSystem);
+      /*       this.viewer.scene.primitives.remove(this.rainSystem);
       this.rainSystem = null; */
-      this.removeStage()
-      this.normalCircumstance()
+      this.removeStage();
+      this.normalCircumstance();
     },
     getRainShader() {
       return "uniform sampler2D colorTexture;\n\
@@ -135,31 +152,38 @@ export default {
 ";
     },
     showRain() {
+      viewer = this.$store.state.viewer;
       this.removeStage();
       var e = new Cesium.PostProcessStage({
         name: "czm_rain",
         fragmentShader: this.getRainShader()
       });
-      this.viewer.scene.postProcessStages.add(e), (this.lastStage = e);
+      viewer.scene.postProcessStages.add(e), (this.lastStage = e);
     },
     removeStage() {
-      this.lastStage && this.viewer.scene.postProcessStages.remove(this.lastStage),
+      viewer = this.$store.state.viewer;
+      this.lastStage && viewer.scene.postProcessStages.remove(this.lastStage),
         (this.lastStage = null);
     },
     rainCircumstance() {
-      this.viewer.scene.skyAtmosphere.hueShift = -0.8;
-      this.viewer.scene.skyAtmosphere.saturationShift = -0.7;
-      this.viewer.scene.skyAtmosphere.brightnessShift = -0.33;
-      this.viewer.scene.fog.density = 0.001;
-      this.viewer.scene.fog.minimumBrightness = 0.8;
+      viewer = this.$store.state.viewer;
+      viewer.scene.skyAtmosphere.hueShift = -0.8;
+      viewer.scene.skyAtmosphere.saturationShift = -0.7;
+      viewer.scene.skyAtmosphere.brightnessShift = -0.33;
+      viewer.scene.fog.density = 0.001;
+      viewer.scene.fog.minimumBrightness = 0.8;
     },
     normalCircumstance() {
-      this.viewer.scene.skyAtmosphere.hueShift = 0;
-      this.viewer.scene.skyAtmosphere.saturationShift = 0;
-      this.viewer.scene.skyAtmosphere.brightnessShift = 0;
-      this.viewer.scene.fog.density = 2e-4;
-      this.viewer.scene.fog.minimumBrightness = 0.03;
-    }
+      viewer = this.$store.state.viewer;
+      viewer.scene.skyAtmosphere.hueShift = 0;
+      viewer.scene.skyAtmosphere.saturationShift = 0;
+      viewer.scene.skyAtmosphere.brightnessShift = 0;
+      viewer.scene.fog.density = 2e-4;
+      viewer.scene.fog.minimumBrightness = 0.03;
+    },
+    ...mapMutations(['addWaterHeight', 'subWaterHeight'])
+  },
+  computed: {
   }
 };
 </script>
@@ -168,7 +192,7 @@ export default {
 .control-panel {
   z-index: 1000;
   position: absolute;
-  top: 15em;
-  left: 2em;
+  top: 2em;
+  left: 18em;
 }
 </style>

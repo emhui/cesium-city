@@ -1,97 +1,136 @@
 <template>
-  <div id="river-model"></div>
+  <div id="river-model">
+    <div class="backdrop" id="menu">
+      <h2>河流</h2>
+      <div class="nowrap" v-for="(river, index) in rivers">
+        <label for>{{river.mark}}</label>
+        <input type="checkbox" name id @click="showRiver($event, index)" checked />
+        <br />
+        <input type="button" value="上升" @click="up(index)" />
+        <input type="button" value="下降" @click="down(index)" />
+      </div>
+      <br />
+    </div>
+  </div>
 </template>
 
 <script>
 var Cesium = require("cesium/Cesium");
+
+let viewer = null;
 export default {
-  props: ["viewer", "data"],
+  props: ["data"],
   data() {
     return {
-      rivers: []
+      defaultHeight: 0,
+      minHeight: 0,
+      maxHeight: 5,
+      delayHeight: 0.5,
+      rivers: [
+        // 存储上流和下流水流区域
+        {
+          mark: "ID_00002", // 由于不知道河流的具体名称，因此使用mark进行匹配
+          entity: null,
+          height: 0, // 当前水的高度
+          interval: null // 计时事件，记录水面升高和降低
+        },
+        {
+          mark: "ID_00003", // 由于不知道河流的具体名称，因此使用mark进行匹配
+          entity: null,
+          height: 0, // 当前水的高度
+          interval: null // 计时事件，记录水面升高和降低
+        },
+        {
+          mark: "ID_00004", // 由于不知道河流的具体名称，因此使用mark进行匹配
+          entity: null,
+          height: 0, // 当前水的高度
+          interval: null // 计时事件，记录水面升高和降低
+        },
+        {
+          mark: "ID_00005", // 由于不知道河流的具体名称，因此使用mark进行匹配
+          entity: null,
+          height: 0, // 当前水的高度
+          interval: null // 计时事件，记录水面升高和降低
+        },
+        {
+          mark: "ID_00006", // 由于不知道河流的具体名称，因此使用mark进行匹配
+          entity: null,
+          height: 0, // 当前水的高度
+          interval: null // 计时事件，记录水面升高和降低
+        },
+        {
+          mark: "ID_00007", // 由于不知道河流的具体名称，因此使用mark进行匹配
+          entity: null,
+          height: 0, // 当前水的高度
+          interval: null // 计时事件，记录水面升高和降低
+        },
+        {
+          mark: "ID_00008", // 由于不知道河流的具体名称，因此使用mark进行匹配
+          entity: null,
+          height: 0, // 当前水的高度
+          interval: null // 计时事件，记录水面升高和降低
+        }
+      ],
+      waterImage: require("../assets/water.jpg")
     };
   },
   mounted() {
-    console.log(this.data);
     this.addRiver();
   },
   methods: {
     addRiver() {
-      var scene = this.viewer.scene;
+      viewer = this.$store.state.viewer;
+      var scene = viewer.scene;
 
       var kmlOptions = {
         camera: scene.camera,
         canvas: scene.canvas,
-        clampToGround: false
+        clampToGround: true
       };
-
-      this.data.forEach(element => {
-        if (element.type === "river") {
-          this.viewer.dataSources
-            .add(Cesium.KmlDataSource.load(element.url, kmlOptions))
-            .then(dataSource => {
-              dataSource.entities.values.forEach(entity => {
-                if (entity.polygon) {
-                  console.log(entity);
-                  entity.polygon.material = Cesium.Color.DEEPSKYBLUE.withAlpha(
-                    0.5
-                  );
-                }
-              });
-            });
-        }
-      });
-      /*       var geocachePromise = Cesium.KmlDataSource.load(
-        "http://localhost:8080/public/river/ningbo_river_2.kml",
-        // this.$baseUrl + "data/river4.kml",
-        // "http://localhost:8080/public/river/ningbo_river_2_LayerToKML.kmz",
-        kmlOptions
-      );
-
-      var River1_Material = new Cesium.Material({
+      // 河流表面材质，绘制流动效果关键
+      var River_Material = new Cesium.Material({
         fabric: {
           type: "Water",
           uniforms: {
-            normalMap: this.$baseUrl + "data/water.jpg",
-            frequency: 100.0,
+            normalMap: this.waterImage,
+            //this.$baseUrl + "data/water.jpg",
+            frequency: 1000.0,
             animationSpeed: 0.01,
             amplitude: 10.0
           }
         }
       });
-      this.viewer.dataSources.add(geocachePromise).then(dataSource => {
-        console.log(dataSource);
+
+      this.data.forEach(element => {
+        if (element.type === "river") {
+          this.addPrimitiveRiver(element.url, kmlOptions, River_Material);
+        }
+      });
+    },
+    // 使用primitive绘制河流。这种河流有动画效果
+    addPrimitiveRiver(url, kmlOptions, material) {
+      var _this = this;
+      // 加载数据
+      var geocachePromise = Cesium.KmlDataSource.load(url, kmlOptions);
+
+      geocachePromise.then(dataSource => {
+        // 加载成功后，开始渲染水面
         dataSource.entities.values.forEach(entity => {
-          if (entity.polygon) {
-            console.log(entity);
-            entity.polygon.material = Cesium.Color.DEEPSKYBLUE.withAlpha(0.5);
-            // "http://localhost:8080/public/water.jpg"
-            //Cesium.Color.fromBytes(0,191,255,100)
-            // Cesium.Color.RED.withAlpha(0.5)
-            // Cesium.Color.fromBytes(102, 255,230,0.5)
-          }
-        });
-      }); */
-      /*       geocachePromise.then(dataSource => {
-        // this.dataSource.add(dataSource);
-        console.log(dataSource);
-        
-        dataSource.entities.values.forEach(entity => {
-          console.log(entity);
           if (entity.polygon) {
             var polygonHierarchy = entity.polygon.hierarchy;
             var positions = entity.polygon.hierarchy._value.positions;
 
-            var polygon1 = new Cesium.PolygonGeometry({
+            var polygon = new Cesium.PolygonGeometry({
               polygonHierarchy: new Cesium.PolygonHierarchy(positions),
-              extrudedHeight: 0,
+              /*               extrudedHeight: 10, */
               height: 0,
               vertexFormat: Cesium.EllipsoidSurfaceAppearance.VERTEX_FORMAT
+              //  heightReference : Cesium.HeightReference.RELATIVE_TO_GROUND,
             });
 
-            this.River1 = new Cesium.Primitive({
+            var River = new Cesium.Primitive({
               geometryInstances: new Cesium.GeometryInstance({
-                geometry: polygon1
+                geometry: polygon
               }),
               appearance: new Cesium.EllipsoidSurfaceAppearance({
                 aboveGround: true
@@ -99,18 +138,102 @@ export default {
               show: true
             });
 
-            this.River1.appearance.material = River1_Material;
-
+            River.appearance.material = material;
             // River1.modelMatrix = Cesium.Matrix4.fromTranslation(Cesium.Cartesian3.fromArray([0,0,10])) 可以，但是效果不是特别好. 最终还是选择平移矩阵
 
-            scene.primitives.add(this.River1);
+            viewer.scene.primitives.add(River);
+
+            _this.rivers.forEach(river => {
+              if (entity.id.startsWith(river.mark)) {
+                river.entity = River;
+              }
+            });
           }
         });
-      }); */
+      });
+    },
+    showRiver(e, index) {
+      if (e.target.checked) {
+        this.rivers[index].entity.show = true;
+      } else {
+        this.rivers[index].entity.show = false;
+      }
+    },
+    clearRiverInterval(river) {
+      clearInterval(river.interval);
+      river.interval = null;
+    },
+    // 水位上升
+    up(index) {
+      var river = this.rivers[index];
+      console.log(river);
+      this.clearRiverInterval(river);
+      river.interval = setInterval(() => {
+        river.height += this.delayHeight;
+        this.updateHeight(river.entity, river.height);
+        if (river.height > this.maxHeight) {
+          this.clearRiverInterval(river);
+        }
+      }, 80);
+    },
+    // 水位下降
+    down(index) {
+      var river = this.rivers[index];
+      this.clearRiverInterval(river);
+      river.interval = setInterval(() => {
+        river.height -= this.delayHeight;
+        this.updateHeight(river.entity, river.height);
+        if (river.height < this.minHeight) {
+          this.clearRiverInterval(river);
+        }
+      }, 80);
+    },
+    updateHeight(tileset, height) {
+      var cartographic = Cesium.Cartographic.fromCartesian(
+        tileset._boundingSpheres[0].center
+      );
+      var surface = Cesium.Cartesian3.fromRadians(
+        cartographic.longitude,
+        cartographic.latitude,
+        0.0
+      );
+      var offset = Cesium.Cartesian3.fromRadians(
+        cartographic.longitude,
+        cartographic.latitude,
+        height
+      );
+      var translation = Cesium.Cartesian3.subtract(
+        offset,
+        surface,
+        new Cesium.Cartesian3()
+      );
+      tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation);
     }
   }
 };
 </script>
 
 <style lang="scss" scoped>
+.backdrop {
+  display: inline-block;
+  background: rgba(42, 42, 42, 0.7);
+  border-radius: 5px;
+  border: 1px solid #444;
+
+  padding: 5px 10px;
+  color: #fff;
+  line-height: 150%;
+  font-size: small;
+  z-index: 1000;
+}
+#menu {
+  position: absolute;
+  left: 2em;
+  top: 20em;
+}
+
+.nowrap {
+  margin-top: 1em;
+  white-space: nowrap;
+}
 </style>

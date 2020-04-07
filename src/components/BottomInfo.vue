@@ -12,8 +12,8 @@
 <script>
 var Cesium = require("cesium/Cesium");
 
+let viewer = null
 export default {
-  props: ["viewer"],
   data() {
     return {
       longitude: 0,
@@ -25,7 +25,8 @@ export default {
     };
   },
   mounted() {
-    var scene = this.viewer.scene;
+    viewer = this.$store.state.viewer
+    var scene = viewer.scene;
     var _this = this;
 
     var handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
@@ -33,11 +34,11 @@ export default {
       if (scene.mode !== Cesium.SceneMode.MORPHING) {
         try {
           var pickedObject = scene.pick(movement.endPosition);
-          var cartesian = _this.viewer.scene.pickPosition(movement.endPosition);
+          var cartesian = viewer.scene.pickPosition(movement.endPosition);
 
           var cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-          var longitudeString = Cesium.Math.toDegrees(cartographic.longitude);
-          var latitudeString = Cesium.Math.toDegrees(cartographic.latitude);
+          var longitudeString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(6);
+          var latitudeString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(6);
           var elevationString = cartographic.height.toFixed(2);
           var pitchString = Cesium.Math.toDegrees(scene.camera.pitch).toFixed(
             2
@@ -74,7 +75,8 @@ export default {
   border-radius: 2px;
   z-index: 1000;
   color: white;
-  display: flex;
+  text-align: right;
+/*   display: flex; */
   justify-content: flex-end;
 }
 

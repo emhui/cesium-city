@@ -1,10 +1,11 @@
 <template>
   <div class="bim-model">
-    <div class="backdrop" id="menu">
+    <div class="backdrop" id="menu" v-show="valveList.length">
       <h2>闸站</h2>
-      <div class="nowrap">
-        <input type="button" value="开闸门" @click="openZM()" />
-        <input type="button" value="关闸门" @click="closeZM()" />
+      <div class="nowrap" v-for="(item, index) in valveList">
+        <label for>{{item.entity.name}}</label>
+        <input type="button" value="开闸门" @click="openZM(index)" />
+        <input type="button" value="关闸门" @click="closeZM(index)" />
       </div>
       <br />
       <div class="nowrap">
@@ -20,12 +21,14 @@
 
 <script>
 // import Cesium from "cesium/Cesium";
-import {ZMPositions} from "../utils/zmPosition"
+import { ZMPositions } from "../utils/zmPosition";
+import { mapState, mapMutations } from "vuex";
 
 var Cesium = require("cesium/Cesium");
 
+let viewer = null;
 export default {
-  props: ["data", "viewer"],
+  props: ["data"],
   data() {
     return {
       modelPosition: {
@@ -34,45 +37,30 @@ export default {
         height: 10
       },
       defaultHeight: 0,
-      zmMinHeight: 6,
-      zmMaxHeight: 11,
+      zmMinHeight: 0,
+      zmMaxHeight: 16,
       delayHeight: 1,
-      currentHeight: 16,
-      // 改用json文件加载进来
-      zmPositions: [
-        121.39856755800847,
-        29.98381214286895,
-
-        121.39875261565491,
-        29.983796556526247,
-
-        121.39875171918382,
-        29.983886677955606,
-
-        121.39857453012864,
-        29.983886707049102
-      ]
+      valveList: []
     };
   },
   mounted() {
     this.addBIM();
     this.tileset.readyPromise.then(tileset => {
-      // this.modifyHeight();
       this.createZM();
-      // this.addColor()
     });
   },
   methods: {
     addBIM() {
+      viewer = this.$store.state.viewer;
       this.data.forEach(element => {
         if (element.type === "3dtileset") {
-          this.tileset = this.viewer.scene.primitives.add(
+          this.tileset = viewer.scene.primitives.add(
             new Cesium.Cesium3DTileset({
               url: element.url
             })
           );
         }
-      })
+      });
     },
     addColor() {
       var defaultStyle = new Cesium.Cesium3DTileStyle({
@@ -107,43 +95,76 @@ export default {
       this.tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation); // 从一个笛卡尔坐标创建一个matrix4的实例
     },
     createZM() {
-      this.zm = this.viewer.entities.add({
-        polygon: {
-          // hierarchy 定义多边形的结构
-          hierarchy: Cesium.Cartesian3.fromDegreesArray(this.zmPositions),
-          height: this.zmMinHeight,
-          extrudedHeight: this.zmMaxHeight,
-          material: Cesium.Color.fromBytes(203, 203, 203),
-          outline: false,
-          outlineColor: Cesium.Color.BLACK
+      viewer = this.$store.state.viewer;
+      var scene = viewer.scene;
+      var _this = this;
+      var kmlOptions = {
+        camera: scene.camera,
+        canvas: scene.canvas,
+        clampToGround: true
+      };
+      this.data.forEach(element => {
+        if (element.type === "valve") {
+          viewer.dataSources
+            .add(Cesium.KmlDataSource.load(element.url, kmlOptions))
+            .then(dataSources => {
+              dataSources.entities.values.forEach(entity => {
+                if (entity.polygon) {
+                  console.log(entity);
+                  let obj = {
+                    entity: entity, // 阀门实体对象
+                    status: false, // 阀门状态，默认是关闭
+                    currentHeight: 0 // 阀门当前升起高度，默认是0
+                  };
+                  _this.valveList.push(obj);
+                  // _this.currentHeight.push(0);
+                  entity.polygon.extrudedHeight = _this.zmMaxHeight;
+                }
+              });
+            });
         }
       });
     },
-    openZM() {
+    openZM(index) {
+      var valve = this.valveList[index];
       var property = new Cesium.CallbackProperty(() => {
-        this.currentHeight += this.delayHeight;
-        if (this.currentHeight > this.zmMaxHeight) {
-          this.currentHeight = this.zmMaxHeight;
+        valve.currentHeight += this.delayHeight;
+        if (valve.currentHeight > this.zmMaxHeight) {
+          valve.currentHeight = this.zmMaxHeight;
         }
-        return this.currentHeight;
+        return valve.currentHeight;
       }, false);
-      this.zm.polygon.height = property;
+      valve.status = true;
+      valve.entity.polygon.height = property;
     },
-    closeZM() {
+    closeZM(index) {
+      var valve = this.valveList[index];
       var property = new Cesium.CallbackProperty(() => {
-        this.currentHeight -= this.delayHeight;
-        if (this.zmMinHeight > this.currentHeight) {
-          this.currentHeight = this.zmMinHeight;
+        valve.currentHeight -= this.delayHeight;
+        if (this.zmMinHeight > valve.currentHeight) {
+          valve.currentHeight = this.zmMinHeight;
         }
-        return this.currentHeight;
+        valve.status = false;
+        return valve.currentHeight;
       }, false);
-      this.zm.polygon.height = property;
+      valve.entity.polygon.height = property;
     },
     flyZM() {
-      this.viewer.flyTo(this.tileset);
-      /*       this.viewer.camera.flyTo({
-        destination : Cesium.Cartesian3.fromDegrees(121.3939949, 29.986037,2000)
-      }) */
+      viewer = this.$store.state.viewer;
+      viewer.flyTo(this.tileset);
+    }
+  },
+  computed: {
+    ...mapState(["waterHeight"])
+  },
+  watch: {
+    waterHeight(){
+      var index = Math.floor(this.waterHeight/10) - 1
+      if( index < this.valveList.length && index > 0){
+        if (!this.valveList[index].status){
+          this.openZM(index)
+        }
+      }
     }
   }
 };
@@ -155,6 +176,7 @@ export default {
   background: rgba(42, 42, 42, 0.7);
   border-radius: 5px;
   border: 1px solid #444;
+
   padding: 5px 10px;
   color: #fff;
   line-height: 150%;
@@ -197,7 +219,7 @@ export default {
 
 #menu {
   position: absolute;
-  left: 10px;
+  left: 2em;
   top: 10px;
 }
 
@@ -206,22 +228,11 @@ export default {
   white-space: nowrap;
 }
 
-/* html, body, #cesiumContainer {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    font-family: sans-serif;
-    background: #000;
-}
-
 button.cesium-infoBox-camera {
-    display: none;
+  display: none;
 }
 
 #3DTiles {
-    padding-top: 10px;
+  padding-top: 10px;
 }
- */
 </style>

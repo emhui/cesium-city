@@ -16,8 +16,10 @@
 <script>
 var Cesium = require("cesium/Cesium");
 
+let viewer = null;
+
 export default {
-  props: ["viewer"],
+  props: [],
   data() {
     return {
       content: "",
@@ -29,7 +31,8 @@ export default {
     };
   },
   mounted() {
-    var scene = this.viewer.scene;
+    viewer = this.$store.state.viewer;
+    var scene = viewer.scene;
     var handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
     handler.setInputAction(movement => {
       var pickObject = scene.pick(movement.position);
@@ -71,7 +74,7 @@ export default {
     },
     createLabel() {
       var text = this.content ? this.content : "city";
-      var entity = this.viewer.entities.add({
+      var entity = viewer.entities.add({
         name: text,
         position: this.cartesian,
         point: {
@@ -98,8 +101,8 @@ export default {
 <style lang="scss" scoped>
 #label-model {
   position: absolute;
-  top: 18em;
-  left: 2em;
+  top: 2em;
+  left: 28em;
   z-index: 1000;
 }
 </style>
