@@ -15,6 +15,7 @@
 </template>
 
 <script>
+import { mapState, mapMutations } from "vuex";
 var Cesium = require("cesium/Cesium");
 
 let viewer = null;
@@ -133,7 +134,8 @@ export default {
                 geometry: polygon
               }),
               appearance: new Cesium.EllipsoidSurfaceAppearance({
-                aboveGround: true
+                aboveGround: true,
+                flat: true
               }),
               show: true
             });
@@ -166,7 +168,7 @@ export default {
     // 水位上升
     up(index) {
       var river = this.rivers[index];
-      console.log(river);
+      // console.log(river);
       this.clearRiverInterval(river);
       river.interval = setInterval(() => {
         if (river.height > this.maxHeight) {
@@ -210,6 +212,16 @@ export default {
         new Cesium.Cartesian3()
       );
       tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation);
+    }
+  },
+  computed: {
+    ...mapState(["waterHeight"])
+  },
+  watch: {
+    waterHeight(){
+      this.rivers.forEach(river => {
+        this.updateHeight(river.entity, this.waterHeight/10)
+      })
     }
   }
 };

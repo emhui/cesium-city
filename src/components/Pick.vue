@@ -3,6 +3,7 @@
 </template>
 
 <script>
+import { mapState, mapMutations } from "vuex";
 var Cesium = require("cesium/Cesium");
 
 let viewer = null;
@@ -47,11 +48,13 @@ export default {
       entity: undefined,
       originalColor: new Cesium.Color()
     };
-
+    var _this = this;
     // 鼠标移动事件，悬浮到实体并高亮
     viewer.screenSpaceEventHandler.setInputAction(function onMouseMove(
       movement
     ) {
+      // 设置屏幕全局坐标
+      _this.setPickPosition(viewer.scene.pickPosition(movement.endPosition));
       // 如果之前存在高亮显示，则取消高亮显示
       if (Cesium.defined(highlighted.entity)) {
         highlighted.entity.polygon.outlineColor = highlighted.originalColor;
@@ -163,6 +166,14 @@ export default {
       }
     },
     Cesium.ScreenSpaceEventType.LEFT_CLICK);
+  },
+  methods: {
+    ...mapMutations(["addWaterHeight", "setPickPosition"]),
+    add() {
+      this.addWaterHeight();
+      // this.setPickPosition(1)
+      console.log("+");
+    }
   }
 };
 </script>

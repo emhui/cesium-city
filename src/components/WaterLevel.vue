@@ -36,7 +36,7 @@ export default {
     var kmlOptions = {
       camera: scene.camera,
       canvas: scene.canvas,
-      clampToGround: false
+      clampToGround: true
     };
     this.data.forEach(element => {
       if (element.type === "water-level") {
@@ -45,6 +45,8 @@ export default {
           .then(dataSources => {
             dataSources.entities.values.forEach(entity => {
               if (entity.label) {
+                // 有效，可以防止被遮挡
+                // entity.billboard.disableDepthTestDistance = Number.POSITIVE_INFINITY
                 entity.label.text = "0mm";
                 entity.billboard.image = this.warnImages[0];
                 entity.billboard.width = 50
@@ -52,7 +54,8 @@ export default {
               } else if (entity.name === "Submerged area") {
                 // 一开始加载出了不显示该区域
                 entity.show = false;
-
+                // 多边形没有这个属性
+                // entity.polygon.disableDepthTestDistance = Number.POSITIVE_INFINITY; 
                 // entity.polygon.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND
                 entity.polygon.material = Cesium.Color.DEEPSKYBLUE.withAlpha(
                   0.5
@@ -84,7 +87,7 @@ export default {
 
       var polygon = new Cesium.PolygonGeometry({
         polygonHierarchy: new Cesium.PolygonHierarchy(positions),
-        height: -10,
+        height: 0,
         vertexFormat: Cesium.EllipsoidSurfaceAppearance.VERTEX_FORMAT
       });
 

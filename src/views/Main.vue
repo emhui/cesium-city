@@ -1,7 +1,7 @@
 <template>
   <div id="cesiumContainer">
     <div v-if="loaded">
-<!--       <bottom-info></bottom-info> -->
+      <bottom-info></bottom-info>
       <river-model :data="data"></river-model>
       <bim-model :data="data"></bim-model>
       <rain-model :data="data"></rain-model>
@@ -13,6 +13,7 @@
 </template>
 
 <script>
+import { mapState, mapMutations, mapGetters } from "vuex";
 var Cesium = require("cesium/Cesium");
 
 let viewer = null;
@@ -34,13 +35,14 @@ export default {
   },
   mounted() {
     var _this = this;
-    this.$http.get("data/data.json").then(response => {
+    this.$http.get("data/data_location.json").then(response => {
       _this.data = response.data;
-      this.initViewer();
+      _this.initViewer();
     });
     console.log("Hello, World");
   },
   methods: {
+    ...mapMutations(['setViewer']),
     initViewer() {
       viewer = new Cesium.Viewer("cesiumContainer", {
         scene3DOnly: true,
@@ -52,7 +54,7 @@ export default {
       this.loaded = true;
       viewer.terrainProvider = this.addTerrain();
       this.setInitPosistion();
-      viewer.extend(Cesium.viewerCesiumInspectorMixin);
+      // viewer.extend(Cesium.viewerCesiumInspectorMixin);
       this.$store.state.viewer = viewer;
       // 关闭这个防止水和BIM模型被遮挡
       viewer.scene.globe.depthTestAgainstTerrain = false;

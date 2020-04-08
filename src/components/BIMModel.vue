@@ -160,7 +160,7 @@ export default {
   watch: {
     waterHeight(){
       var index = Math.floor(this.waterHeight/10) - 1
-      if( index < this.valveList.length && index > 0){
+      if( index < this.valveList.length && index > -1){
         if (!this.valveList[index].status){
           this.openZM(index)
         }

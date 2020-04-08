@@ -1,39 +1,20 @@
 <template>
   <div id="bottom-info-box">
-    <span class="info__item info__lon">纬度:{{longitude}}</span>
-    <span class="info__item info__lat">经度:{{latitude}}</span>
-    <span class="info__item info__elevation">海拔:{{elevation}}</span>
+    <span class="info__item info__lon">纬度:{{showLongitude}}</span>
+    <span class="info__item info__lat">经度:{{showLatitude}}</span>
+<!--     <span class="info__item info__elevation">海拔:{{elevation}}</span>
     <span class="info__item info__height">高度:{{height}}</span>
     <span class="info__item info__heading">方向:{{heading}}</span>
-    <span class="info__item info__pitch">俯视角:{{pitch}}</span>
+    <span class="info__item info__pitch">俯视角:{{pitch}}</span> -->
   </div>
 </template>
 
 <script>
-var Cesium = require("cesium/Cesium");
+import { mapState, mapMutations, mapGetters } from "vuex";
 
-let viewer = null
 export default {
-  data() {
-    return {
-      longitude: 0,
-      latitude: 0,
-      elevation: 0,
-      height: 0,
-      heading: 0,
-      pitch: 0
-    };
-  },
   mounted() {
-    viewer = this.$store.state.viewer
-    var scene = viewer.scene;
-    var _this = this;
-
-    var handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
-    handler.setInputAction(function(movement) {
-      if (scene.mode !== Cesium.SceneMode.MORPHING) {
-        try {
-          var pickedObject = scene.pick(movement.endPosition);
+/*           var pickedObject = scene.pick(movement.endPosition);
           var cartesian = viewer.scene.pickPosition(movement.endPosition);
 
           var cartographic = Cesium.Cartographic.fromCartesian(cartesian);
@@ -47,16 +28,10 @@ export default {
             scene.camera.heading
           ).toFixed(2);
           var heightString = scene.globe.getHeight(cartographic).toFixed(2);
-
-          _this.longitude = longitudeString;
-          _this.latitude = latitudeString;
-          _this.elevation = elevationString;
-          _this.height = heightString;
-          _this.heading = headingString;
-          _this.pitch = pitchString;
-        } catch (error) {}
-      }
-    }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+ */
+  },
+  computed: {
+    ...mapGetters(['showLongitude', 'showLatitude'])
   }
 };
 </script>
@@ -73,7 +48,7 @@ export default {
   z-index: 1000;
   color: white;
   text-align: right;
-/*   display: flex; */
+  /*   display: flex; */
   justify-content: flex-end;
 }
 
