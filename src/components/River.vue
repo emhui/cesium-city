@@ -169,11 +169,12 @@ export default {
       console.log(river);
       this.clearRiverInterval(river);
       river.interval = setInterval(() => {
-        river.height += this.delayHeight;
-        this.updateHeight(river.entity, river.height);
         if (river.height > this.maxHeight) {
           this.clearRiverInterval(river);
+          return
         }
+        river.height += this.delayHeight;
+        this.updateHeight(river.entity, river.height);
       }, 80);
     },
     // 水位下降
@@ -181,11 +182,12 @@ export default {
       var river = this.rivers[index];
       this.clearRiverInterval(river);
       river.interval = setInterval(() => {
-        river.height -= this.delayHeight;
-        this.updateHeight(river.entity, river.height);
         if (river.height < this.minHeight) {
           this.clearRiverInterval(river);
+          return
         }
+        river.height -= this.delayHeight;
+        this.updateHeight(river.entity, river.height);
       }, 80);
     },
     updateHeight(tileset, height) {

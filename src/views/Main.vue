@@ -1,12 +1,13 @@
 <template>
   <div id="cesiumContainer">
     <div v-if="loaded">
-      <bottom-info></bottom-info>
+<!--       <bottom-info></bottom-info> -->
       <river-model :data="data"></river-model>
       <bim-model :data="data"></bim-model>
       <rain-model :data="data"></rain-model>
       <label-model></label-model>
       <water-level :data="data"></water-level>
+      <pick-model></pick-model>
     </div>
   </div>
 </template>
@@ -110,7 +111,8 @@ export default {
     RiverModel: () => import("../components/River"),
     RainModel: () => import("../components/Rain"),
     LabelModel: () => import("../components/Lable"),
-    WaterLevel: () => import("../components/WaterLevel")
+    WaterLevel: () => import("../components/WaterLevel"),
+    PickModel: () => import("../components/Pick") // 高亮显示选中的实体
   }
 };
 </script>

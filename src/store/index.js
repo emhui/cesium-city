@@ -8,6 +8,9 @@ export default new Vuex.Store({
     waterHeight: 0
   },
   mutations: {
+    setViewr(state, viewer){
+      state.viewer = viewer
+    },
     addWaterHeight(state) {
       state.waterHeight+=1
     },

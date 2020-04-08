@@ -47,10 +47,7 @@ export default {
             scene.camera.heading
           ).toFixed(2);
           var heightString = scene.globe.getHeight(cartographic).toFixed(2);
-          // console.log('direct get:', heightString, '\n globe get: ', scene.globe.getHeight(cartesian));
 
-          /*         var headingString = Cesium.Math.toDegrees(scene.camera.heading).toFixed(2)
-        var pitchString = Cesium.Math.toDegrees(scene.camera.ptich).toFixed(2) */
           _this.longitude = longitudeString;
           _this.latitude = latitudeString;
           _this.elevation = elevationString;
