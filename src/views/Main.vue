@@ -8,6 +8,7 @@
       <label-model></label-model>
       <water-level :data="data"></water-level>
       <pick-model></pick-model>
+      <wander-model :data="data"></wander-model>
     </div>
   </div>
 </template>
@@ -21,9 +22,10 @@ export default {
   data() {
     return {
       initPosition: {
-        longitude: 121.39143670453481,
-        latitude: 29.99058677574627,
-        height: 2630
+        longitude: 121.3938116,
+        latitude: 29.9839426,
+        height: 180
+        // 763.2884569
       },
       initHeadingPitchRoll: {
         heading: 0, // 绕着z轴旋转，指向东南西北
@@ -42,7 +44,7 @@ export default {
     console.log("Hello, World");
   },
   methods: {
-    ...mapMutations(['setViewer']),
+    ...mapMutations(["setViewer"]),
     initViewer() {
       viewer = new Cesium.Viewer("cesiumContainer", {
         scene3DOnly: true,
@@ -53,6 +55,7 @@ export default {
       });
       this.loaded = true;
       viewer.terrainProvider = this.addTerrain();
+      this.addImage();
       this.setInitPosistion();
       // viewer.extend(Cesium.viewerCesiumInspectorMixin);
       this.$store.state.viewer = viewer;
@@ -105,6 +108,15 @@ export default {
         }
       });
       return terrainProvider;
+    },
+    addImage() {
+      // 将默认影像（必应）更换为Google影像
+      var google = new Cesium.UrlTemplateImageryProvider({
+        url: "http://mt0.google.cn/vt/lyrs=s&hl=zh-CN&x={x}&y={y}&z={z}",
+        tilingScheme: new Cesium.WebMercatorTilingScheme(),
+        maximumLevel: 20
+      });
+      viewer.imageryLayers.addImageryProvider(google);
     }
   },
   components: {
@@ -114,7 +126,8 @@ export default {
     RainModel: () => import("../components/Rain"),
     LabelModel: () => import("../components/Lable"),
     WaterLevel: () => import("../components/WaterLevel"),
-    PickModel: () => import("../components/Pick") // 高亮显示选中的实体
+    PickModel: () => import("../components/Pick"), // 高亮显示选中的实体
+    WanderModel: () => import("../components/Wander") // 漫游飞行功能
   }
 };
 </script>

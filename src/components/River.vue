@@ -96,7 +96,7 @@ export default {
             normalMap: this.waterImage,
             //this.$baseUrl + "data/water.jpg",
             frequency: 1000.0,
-            animationSpeed: 0.01,
+            animationSpeed: 0.02,
             amplitude: 10.0
           }
         }

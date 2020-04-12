@@ -25,13 +25,20 @@
         "name": "宁波-阀门",
         "type": "valve",
         "url" : "http://127.0.0.1:9090/public/river/famen.kml",
-        "desc" : "阀门数据,可以单独导入从服务器导入"
+        "desc" : "阀门数据"
     },
     {
         "id" : "5",
         "name": "宁波-水位",
         "type": "water-level",
-        "url" : "http://127.0.0.1:9090/public/river/water-level2.kml",
-        "desc" : "阀门数据,可以单独导入从服务器导入"
+        "url" : "http://127.0.0.1:9090/public/river/water-level3.kml",
+        "desc" : "水位数据"
+    },
+    {
+        "id" : "6",
+        "name": "宁波-飞行路径",
+        "type": "wander",
+        "url" : "http://127.0.0.1:9090/public/river/wander-1.kml",
+        "desc" : "飞行漫游路径数据"
     }
 ]
