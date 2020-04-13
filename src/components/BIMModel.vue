@@ -1,6 +1,6 @@
 <template>
   <div class="bim-model">
-    <div class="backdrop" id="menu" v-show="valveList.length">
+    <!--     <div class="backdrop" id="menu" v-show="valveList.length">
       <h2>闸站</h2>
       <div class="nowrap" v-for="(item, index) in valveList">
         <label for>{{item.entity.name}}</label>
@@ -15,14 +15,14 @@
     </div>
     <div id="loadingIndicator" class="cover">
       <div id="loadingIcon" class="loadingIndicator"></div>
-    </div>
+    </div>-->
   </div>
 </template>
 
 <script>
 // import Cesium from "cesium/Cesium";
-import { ZMPositions } from "../utils/zmPosition";
 import { mapState, mapMutations } from "vuex";
+import Bus from "../store/eventBus";
 
 var Cesium = require("cesium/Cesium");
 
@@ -47,6 +47,14 @@ export default {
     this.addBIM();
     this.tileset.readyPromise.then(tileset => {
       this.createZM();
+    });
+    // 监听控制面板发送过来的点击事件
+    Bus.$on("update-valve", (checked, index) => {
+      if (checked) {
+        this.openZM(index)
+      }else{
+        this.closeZM(index)
+      }
     });
   },
   methods: {
@@ -117,7 +125,7 @@ export default {
                     currentHeight: 0 // 阀门当前升起高度，默认是0
                   };
                   _this.valveList.push(obj);
-                  // _this.currentHeight.push(0);
+                  _this.addValves(obj);
                   entity.polygon.extrudedHeight = _this.zmMaxHeight;
                 }
               });
@@ -134,7 +142,6 @@ export default {
         }
         return valve.currentHeight;
       }, false);
-      valve.status = true;
       valve.entity.polygon.height = property;
     },
     closeZM(index) {
@@ -144,7 +151,6 @@ export default {
         if (this.zmMinHeight > valve.currentHeight) {
           valve.currentHeight = this.zmMinHeight;
         }
-        valve.status = false;
         return valve.currentHeight;
       }, false);
       valve.entity.polygon.height = property;
@@ -152,17 +158,19 @@ export default {
     flyZM() {
       viewer = this.$store.state.viewer;
       viewer.flyTo(this.tileset);
-    }
+    },
+    ...mapMutations(["addValves", "setValvesStatus"])
   },
   computed: {
-    ...mapState(["waterHeight"])
+    ...mapState(["waterHeight", "valves"])
   },
   watch: {
-    waterHeight(){
-      var index = Math.floor(this.waterHeight/10) - 1
-      if( index < this.valveList.length && index > -1){
-        if (!this.valveList[index].status){
-          this.openZM(index)
+    waterHeight() {
+      var index = Math.floor(this.waterHeight / 10) - 1;
+      if (index < this.valveList.length && index > -1) {
+        if (!this.valveList[index].status) {
+          this.openZM(index);
+          this.setValvesStatus({index: index, checked: true})
         }
       }
     }

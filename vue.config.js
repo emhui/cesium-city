@@ -42,15 +42,18 @@ module.exports = {
 
         }
     },
-
-/*     devServer: {
-        proxy: {
-            "/proxy": {
-                "target": "http://127.0.0.1:8080/",
-                "pathRewrite": {
-                    "^/proxy": ""
-                }
-            }
-        }
-    } */
+    css: {
+        loaderOptions: {
+            less: {
+                modifyVars: {
+                    'component-background': 'rgba(42,42,42,0.7)',
+                    'border-color-base': '#444',
+                    'text-color': '#fff',
+                    'background-color-light': 'rgba(42, 42, 42, 0.7)',
+                    'heading-color': '#fff'
+                },
+                javascriptEnabled: true,
+            },
+        },
+    },
 }

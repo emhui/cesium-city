@@ -1,6 +1,6 @@
 <template>
   <div id="river-model">
-    <div class="backdrop" id="menu">
+    <!--     <div class="backdrop" id="menu">
       <h2>河流</h2>
       <div class="nowrap" v-for="(river, index) in rivers">
         <label for>{{river.mark}}</label>
@@ -10,12 +10,14 @@
         <input type="button" value="下降" @click="down(index)" />
       </div>
       <br />
-    </div>
+    </div>-->
   </div>
 </template>
 
 <script>
 import { mapState, mapMutations } from "vuex";
+import Bus from "../store/eventBus";
+
 var Cesium = require("cesium/Cesium");
 
 let viewer = null;
@@ -30,53 +32,76 @@ export default {
       rivers: [
         // 存储上流和下流水流区域
         {
+          name: "下游",
           mark: "ID_00002", // 由于不知道河流的具体名称，因此使用mark进行匹配
           entity: null,
           height: 0, // 当前水的高度
-          interval: null // 计时事件，记录水面升高和降低
+          status: false, // 河流的状态，false为正常状态，true为涨水状态
+          interval: null, // 计时事件，记录水面升高和降低
+          enableControl: true // 是否控制这条河流的变化
         },
-        {
+        /*         {
           mark: "ID_00003", // 由于不知道河流的具体名称，因此使用mark进行匹配
           entity: null,
           height: 0, // 当前水的高度
-          interval: null // 计时事件，记录水面升高和降低
-        },
+          interval: null, // 计时事件，记录水面升高和降低
+          enableControl : false // 是否控制这条河流的变化
+        }, */
         {
+          name: "上游",
           mark: "ID_00004", // 由于不知道河流的具体名称，因此使用mark进行匹配
           entity: null,
           height: 0, // 当前水的高度
-          interval: null // 计时事件，记录水面升高和降低
-        },
-        {
+          status: false, // 河流的状态，false为正常状态，true为涨水状态
+          interval: null, // 计时事件，记录水面升高和降低
+          enableControl: true // 是否控制这条河流的变化
+        }
+        /*         {
           mark: "ID_00005", // 由于不知道河流的具体名称，因此使用mark进行匹配
           entity: null,
           height: 0, // 当前水的高度
-          interval: null // 计时事件，记录水面升高和降低
+          interval: null, // 计时事件，记录水面升高和降低
+          enableControl : false // 是否控制这条河流的变化
         },
         {
           mark: "ID_00006", // 由于不知道河流的具体名称，因此使用mark进行匹配
           entity: null,
           height: 0, // 当前水的高度
-          interval: null // 计时事件，记录水面升高和降低
+          interval: null, // 计时事件，记录水面升高和降低
+          enableControl : false // 是否控制这条河流的变化
         },
         {
           mark: "ID_00007", // 由于不知道河流的具体名称，因此使用mark进行匹配
           entity: null,
           height: 0, // 当前水的高度
-          interval: null // 计时事件，记录水面升高和降低
+          interval: null, // 计时事件，记录水面升高和降低
+          enableControl : false // 是否控制这条河流的变化
         },
         {
           mark: "ID_00008", // 由于不知道河流的具体名称，因此使用mark进行匹配
           entity: null,
           height: 0, // 当前水的高度
-          interval: null // 计时事件，记录水面升高和降低
-        }
+          interval: null, // 计时事件，记录水面升高和降低
+          enableControl : false // 是否控制这条河流的变化
+        } */
       ],
       waterImage: require("../assets/water.jpg")
     };
   },
   mounted() {
     this.addRiver();
+
+    // 监听上升下降事件
+    Bus.$on('update-river-height', (index, height) => {
+      this.updateHeight(this.rivers[index].entity, height)
+    })
+    Bus.$on('rise-river', (checked, index) => {
+      if (checked) {
+        this.up(index)
+      }else{
+        this.down(index)
+      }
+    })
   },
   methods: {
     addRiver() {
@@ -148,6 +173,7 @@ export default {
             _this.rivers.forEach(river => {
               if (entity.id.startsWith(river.mark)) {
                 river.entity = River;
+                _this.setRivers(_this.rivers);
               }
             });
           }
@@ -171,9 +197,9 @@ export default {
       // console.log(river);
       this.clearRiverInterval(river);
       river.interval = setInterval(() => {
-        if (river.height > this.maxHeight) {
+        if (river.height >= this.maxHeight) {
           this.clearRiverInterval(river);
-          return
+          return;
         }
         river.height += this.delayHeight;
         this.updateHeight(river.entity, river.height);
@@ -184,9 +210,9 @@ export default {
       var river = this.rivers[index];
       this.clearRiverInterval(river);
       river.interval = setInterval(() => {
-        if (river.height < this.minHeight) {
+        if (river.height <= this.minHeight) {
           this.clearRiverInterval(river);
-          return
+          return;
         }
         river.height -= this.delayHeight;
         this.updateHeight(river.entity, river.height);
@@ -212,16 +238,17 @@ export default {
         new Cesium.Cartesian3()
       );
       tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation);
-    }
+    },
+    ...mapMutations(["addRivers", "setRivers", "updateRiversHeight"])
   },
   computed: {
     ...mapState(["waterHeight"])
   },
   watch: {
-    waterHeight(){
+    waterHeight() {
       this.rivers.forEach(river => {
-        this.updateHeight(river.entity, this.waterHeight/10)
-      })
+        this.updateHeight(river.entity, this.waterHeight / 10);
+      });
     }
   }
 };

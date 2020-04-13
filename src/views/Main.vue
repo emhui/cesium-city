@@ -9,6 +9,7 @@
       <water-level :data="data"></water-level>
       <pick-model></pick-model>
       <wander-model :data="data"></wander-model>
+      <control-panel></control-panel>
     </div>
   </div>
 </template>
@@ -57,6 +58,8 @@ export default {
       viewer.terrainProvider = this.addTerrain();
       this.addImage();
       this.setInitPosistion();
+      // 重写homebuttom事件
+      this.setHomeButton()
       // viewer.extend(Cesium.viewerCesiumInspectorMixin);
       this.$store.state.viewer = viewer;
       // 关闭这个防止水和BIM模型被遮挡
@@ -117,6 +120,17 @@ export default {
         maximumLevel: 20
       });
       viewer.imageryLayers.addImageryProvider(google);
+    },
+    // 重新homebutton事件
+    setHomeButton() {
+      var _this = this
+      viewer.homeButton.viewModel.command.beforeExecute.addEventListener(
+        function(e) {
+          e.cancel = true;
+          // viewer.zoomTo(tileset, default_HeadingPitchRange);
+          _this.setInitPosistion()
+        }
+      );
     }
   },
   components: {
@@ -127,7 +141,8 @@ export default {
     LabelModel: () => import("../components/Lable"),
     WaterLevel: () => import("../components/WaterLevel"),
     PickModel: () => import("../components/Pick"), // 高亮显示选中的实体
-    WanderModel: () => import("../components/Wander") // 漫游飞行功能
+    WanderModel: () => import("../components/Wander"), // 漫游飞行功能
+    ControlPanel: () => import("../components/ControlPanel")
   }
 };
 </script>

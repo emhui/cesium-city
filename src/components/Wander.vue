@@ -1,16 +1,17 @@
 <template>
   <div class="wander-model">
-    <div class="tools">
+    <!--     <div class="tools">
       <div class="tools-item">
         <input type="button" value="wander" @click="startWander()" />
         <input type="button" :value="status" @click="pauseWander()" />
         <input type="button" value="clear" @click="clearWander()" />
       </div>
-    </div>
+    </div>-->
   </div>
 </template>
 
 <script>
+import Bus from "../store/eventBus";
 var Cesium = require("cesium/Cesium");
 
 let viewer = null;
@@ -19,6 +20,17 @@ export default {
   mounted() {
     viewer = this.$store.state.viewer;
     this.parseData();
+
+    Bus.$on("start-wander", () => {
+      this.startWander();
+    });
+    Bus.$on("change-wander", checked => {
+      if (checked) {
+        viewer.clock.shouldAnimate = false;
+      } else {
+        viewer.clock.shouldAnimate = true;
+      }
+    });
   },
   data() {
     return {
@@ -34,7 +46,6 @@ export default {
   methods: {
     startWander() {
       // 解析数据
-      console.log(this.marks);
       this.clearWander();
       viewer.clock.shouldAnimate = true;
       // 飞行

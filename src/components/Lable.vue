@@ -1,6 +1,6 @@
 <template>
   <div id="label-model">
-    <div class="label-tools">
+<!--     <div class="label-tools">
       <input type="button" value="书签" @click="add" />
     </div>
     <ul class="lable-list">
@@ -9,7 +9,7 @@
     <div class="input-box" v-show="showInput">
       <input type="text" name id v-model="content" />
       <input type="button" value="确认" @click="update" />
-    </div>
+    </div> -->
   </div>
 </template>
 

@@ -1,6 +1,6 @@
 <template>
   <div id="rain-model">
-    <div class="control-panel">
+    <!--     <div class="control-panel">
       <div class="rain-box">
         <div class="rain__item">
           <input
@@ -13,13 +13,13 @@
           <label for="is-rain">下雨</label>
         </div>
       </div>
-    </div>
+    </div>-->
   </div>
 </template>
 
 <script>
 import Bus from "../store/eventBus";
-import { mapState, mapMutations } from 'vuex'
+import { mapState, mapMutations } from "vuex";
 
 var Cesium = require("cesium/Cesium");
 let viewer = null;
@@ -31,21 +31,32 @@ export default {
       rainInterval: null // 设置一个下雨定时器
     };
   },
-  mounted() {},
+  mounted() {
+    Bus.$on("update-rain", checked => {
+      if (checked) {
+        // 下雨就通知水位在上升
+        this.startRainInterval();
+        this.showRain();
+      } else {
+        this.clearRainInterval();
+        this.removeStage();
+      }
+    });
+  },
   methods: {
     onClick(event) {
       if (event.target.checked) {
         // 下雨就通知水位在上升
-          this.startRainInterval()
+        this.startRainInterval();
         this.showRain();
       } else {
-        this.clearRainInterval()
+        this.clearRainInterval();
         this.removeStage();
       }
     },
     startRainInterval() {
       this.rainInterval = setInterval(() => {
-        this.addWaterHeight()
+        this.addWaterHeight();
         // Bus.$emit("water-height-up");
       }, 1000);
     },
@@ -181,10 +192,9 @@ export default {
       viewer.scene.fog.density = 2e-4;
       viewer.scene.fog.minimumBrightness = 0.03;
     },
-    ...mapMutations(['addWaterHeight', 'subWaterHeight'])
+    ...mapMutations(["addWaterHeight", "subWaterHeight"])
   },
-  computed: {
-  }
+  computed: {}
 };
 </script>
 

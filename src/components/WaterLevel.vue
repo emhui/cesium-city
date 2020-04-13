@@ -1,6 +1,6 @@
 <template>
   <div class="water-level">
-    <div class="panel-tools">
+<!--     <div class="panel-tools">
       <div class="item">
         <input type="checkbox" name id @click="cbTerrain" />
         <label for>地形检测</label>
@@ -13,7 +13,7 @@
     <div class="item">
       <input type="checkbox" name id @click="startFlood" />
       <label for>涨水</label>
-    </div>
+    </div> -->
   </div>
 </template>
 
