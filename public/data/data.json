@@ -3,35 +3,49 @@
         "id" : "0",
         "name": "水站-建筑",
         "type": "3dtileset",
-        "url" : "http://192.168.0.7:9090/public/zz-building/tileset.json",
+        "url" : "http://127.0.0.1:9090/public/zz-building/tileset.json",
         "desc" : "type和url是必须配置的，其他暂时可不配置。可能会有跨域问题，需要在服务器端解决"
     },
     {
         "id" : "2",
         "name": "宁波-地形",
         "type": "terrain",
-        "url" : "http://192.168.0.7:9090/public/terrain/",
+        "url" : "http://127.0.0.1:9090/public/terrain/",
         "desc" : "地形数据的url链接是地形的根目录"
     },
     {
         "id" : "3",
         "name": "宁波-河流",
         "type": "river",
-        "url" : "http://192.168.0.7:9090/public/river/ningbo_river_2_LayerToKML3.kmz",
+        "url" : "http://127.0.0.1:9090/public/river/ningbo_river_2_LayerToKML4.kmz",
         "desc" : "河流引用的是kml数据"
     },
     {
         "id" : "4",
         "name": "宁波-阀门",
         "type": "valve",
-        "url" : "http://192.168.0.7:9090/public/river/famen.kml",
-        "desc" : "阀门数据,可以单独导入从服务器导入"
+        "url" : "http://127.0.0.1:9090/public/river/famen.kml",
+        "desc" : "阀门数据"
     },
     {
         "id" : "5",
         "name": "宁波-水位",
         "type": "water-level",
-        "url" : "http://192.168.0.7:9090/public/river/water-level3.kml",
-        "desc" : "水位数据,可以单独导入从服务器导入"
+        "url" : "http://127.0.0.1:9090/public/river/water-level3.kml",
+        "desc" : "水位数据"
+    },
+    {
+        "id" : "6",
+        "name": "宁波-飞行路径",
+        "type": "wander",
+        "url" : "http://127.0.0.1:9090/public/river/wander-1.kml",
+        "desc" : "飞行漫游路径数据"
+    },
+    {
+        "id" : "7",
+        "name": "监控视频区域",
+        "type": "video",
+        "url" : "http://127.0.0.1:9090/public/river/video.kml",
+        "desc" : "飞行漫游路径数据"
     }
 ]

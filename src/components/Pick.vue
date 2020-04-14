@@ -68,7 +68,7 @@ export default {
       }
       if (pickedEntity.id) {
         var pickedEntity = pickedEntity.id;
-        if (pickedEntity.polygon) {
+        if (pickedEntity.polygon && pickedEntity.name.startsWith("阀")) {
           // 实体选中后展示它的数据
           nameOverlay.style.display = "block";
           nameOverlay.style.bottom =

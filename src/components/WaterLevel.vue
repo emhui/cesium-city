@@ -66,11 +66,13 @@ export default {
           .then(dataSources => {
             dataSources.entities.values.forEach(entity => {
               if (entity.label) {
-                // 有效，可以防止被遮挡
-                // entity.billboard.disableDepthTestDistance = Number.POSITIVE_INFINITY
+                // 开启深度检测，让模型遮挡它
+                entity.billboard.disableDepthTestDistance = 0
+                entity.label.disableDepthTestDistance = 0
+
                 entity.label.text = "0mm";
                 entity.billboard.image = this.warnImages[0];
-                entity.billboard.width = 50;
+                entity.billboard.width = 40;
                 // entity.billboard.translucencyByDistance = new Cesium.NearFarScalar(1.5e2, 1.0, 2.0e2, 0.0);
                 _this.waterLevelLabels.push(entity);
               } else if (entity.name === "Submerged area") {

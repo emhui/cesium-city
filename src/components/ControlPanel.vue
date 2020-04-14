@@ -22,7 +22,6 @@
           <a-list-item slot="renderItem" slot-scope="item, index">
             <a-list-item-meta>
               <a slot="title">{{ item.name }}</a>
-              <!--               <a-avatar slot="avatar" src="http://127.0.0.1:9090/public/image/river.png" /> -->
               <a-avatar slot="avatar" :src="riverIcon" />
             </a-list-item-meta>
             <a-switch
@@ -46,7 +45,12 @@
         </a-list>
       </a-collapse-panel>
 
-      <a-collapse-panel header="其他" key="3">
+      <a-collapse-panel header="监控" key="3">
+        <a-checkbox size="small" defaultChecked="true" @change="changeVideo" >显示</a-checkbox>
+         <a-button type="primary" :icon="videoIcon" @click="play"/>
+      </a-collapse-panel>
+      
+      <a-collapse-panel header="其他" key="4">
         <a-list itemLayout="horizontal">
           <a-list-item>
             <a-checkbox slot="actions" @change="changeRain">下雨</a-checkbox>
@@ -69,6 +73,8 @@
               slot="actions"
               @change="changeWander"
             />
+            <a-icon type="close-circle" slot="actions" @click="closeWander" />
+<!--             <a-button type="primary" shape="circle" icon="close" slot="actions" size="small"></a-button> -->
           </a-list-item>
         </a-list>
       </a-collapse-panel>
@@ -83,8 +89,9 @@ import Bus from "../store/eventBus";
 export default {
   data() {
     return {
-      activeKey: ["2"], // 默认激活第几个页面
-      riverIcon: require("../assets/river.png") // 河流的图标
+      activeKey: ["3"], // 默认激活第几个页面
+      riverIcon: require("../assets/river.png"), // 河流的图标
+      videoIcon: "play-circle"
     };
   },
   methods: {
@@ -108,12 +115,29 @@ export default {
     changeRain(e) {
       Bus.$emit("update-rain", e.target.checked);
     },
+    changeVideo(e) {
+      Bus.$emit("update-video", e.target.checked);
+    },
     // 开始漫游事件
     clickWander(e) {
+      this.$message.success(`路线${e.key}开始漫游`)
       Bus.$emit("start-wander");
     },
     changeWander(e) {
       Bus.$emit("change-wander", e);
+    },
+    closeWander(){
+      this.$message.error("结束漫游")
+      Bus.$emit("clear-wander")
+    },
+    play(){
+      if(this.videoIcon === "play-circle"){
+        this.videoIcon = "pause-circle"
+        Bus.$emit("play-video")
+      }else{
+        this.videoIcon = "play-circle"
+        Bus.$emit("pause-video")
+      }
     },
     ...mapMutations([
       "setValvesStatus",
@@ -123,12 +147,9 @@ export default {
   },
   computed: {
     ...mapState(["valves", "rivers"]),
-    ...mapGetters(["showValves"])
+    ...mapGetters(["showValves"]),
   },
   watch: {
-    activeKey(key) {
-      console.log(key);
-    }
   },
   filters: {
     showHeight(value) {

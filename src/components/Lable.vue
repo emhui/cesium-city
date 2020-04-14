@@ -81,15 +81,20 @@ export default {
           pixelSize: 5,
           color: Cesium.Color.RED,
           outlineColor: Cesium.Color.WHITE,
-          outlineWidth: 2
+          outlineWidth: 2,
+          heightReference :Cesium.HeightReference.CLAMP_TO_GROUND
+          // heightReference :Cesium.HeightReference.RELATIVE_TO_GROUND
+          // disableDepthTestDistance: Number.POSITIVE_INFINITY // 关闭深度检测，可以让他在物体的表面
         },
         label: {
           text: text,
-          font: "14pt monospace",
+          font: "12pt monospace",
           style: Cesium.LabelStyle.FILL_AND_OUTLINE,
           outlineWidth: 2,
           verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-          pixelOffset: new Cesium.Cartesian2(0, -9)
+          pixelOffset: new Cesium.Cartesian2(0, -9),
+          heightReference :Cesium.HeightReference.CLAMP_TO_GROUND,
+          disableDepthTestDistance: 0// 开启深度检测，让它被其他物体遮挡
         }
       });
       this.labelList.push(entity);

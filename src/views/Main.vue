@@ -10,6 +10,7 @@
       <pick-model></pick-model>
       <wander-model :data="data"></wander-model>
       <control-panel></control-panel>
+      <video-model :data="data"></video-model>
     </div>
   </div>
 </template>
@@ -38,7 +39,7 @@ export default {
   },
   mounted() {
     var _this = this;
-    this.$http.get("data/data_location.json").then(response => {
+    this.$http.get("data/data.json").then(response => {
       _this.data = response.data;
       _this.initViewer();
     });
@@ -142,7 +143,8 @@ export default {
     WaterLevel: () => import("../components/WaterLevel"),
     PickModel: () => import("../components/Pick"), // 高亮显示选中的实体
     WanderModel: () => import("../components/Wander"), // 漫游飞行功能
-    ControlPanel: () => import("../components/ControlPanel")
+    ControlPanel: () => import("../components/ControlPanel"),
+    VideoModel: () => import("../components/Video")
   }
 };
 </script>

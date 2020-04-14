@@ -92,16 +92,16 @@ export default {
     this.addRiver();
 
     // 监听上升下降事件
-    Bus.$on('update-river-height', (index, height) => {
-      this.updateHeight(this.rivers[index].entity, height)
-    })
-    Bus.$on('rise-river', (checked, index) => {
+    Bus.$on("update-river-height", (index, height) => {
+      this.updateHeight(this.rivers[index].entity, height);
+    });
+    Bus.$on("rise-river", (checked, index) => {
       if (checked) {
-        this.up(index)
-      }else{
-        this.down(index)
+        this.up(index);
+      } else {
+        this.down(index);
       }
-    })
+    });
   },
   methods: {
     addRiver() {
@@ -129,7 +129,10 @@ export default {
 
       this.data.forEach(element => {
         if (element.type === "river") {
-          this.addPrimitiveRiver(element.url, kmlOptions, River_Material);
+          // this.addPrimitiveRiver(element.url, kmlOptions, River_Material);
+          viewer.dataSources.add(
+            Cesium.KmlDataSource.load(element.url, kmlOptions)
+          );
         }
       });
     },

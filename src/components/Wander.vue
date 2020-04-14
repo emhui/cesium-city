@@ -24,6 +24,9 @@ export default {
     Bus.$on("start-wander", () => {
       this.startWander();
     });
+    Bus.$on("clear-wander", () => {
+      this.clearWander()
+    });
     Bus.$on("change-wander", checked => {
       if (checked) {
         viewer.clock.shouldAnimate = false;
@@ -72,10 +75,12 @@ export default {
       }
     },
     clearWander() {
-      if (this.Exection1 && this.Exection2) {
+      if (this.Exection1) {
         viewer.clock.onTick.removeEventListener(this.Exection1);
-        viewer.clock.onTick.removeEventListener(this.Exection2);
         this.Exection1 = null;
+      }
+      if (this.Exection2) {
+        viewer.clock.onTick.removeEventListener(this.Exection2);
         this.Exection2 = null;
       }
       this.marksIndex = 1;
@@ -244,6 +249,11 @@ export default {
             .add(Cesium.KmlDataSource.load(data.url, options))
             .then(dataSources => {
               dataSources.entities.values.forEach(entity => {
+                console.log(entity);
+
+                // 设置一下路径贴地
+                // entity.polyline.clampToGround = new ConstantProperty(true);
+                console.log(entity);
                 var positions = entity.polyline.positions._value;
                 var mark = positions.map(element => {
                   var cartographic = Cesium.Cartographic.fromCartesian(element);
