@@ -9,8 +9,10 @@
       <water-level :data="data"></water-level>
       <pick-model></pick-model>
       <wander-model :data="data"></wander-model>
-      <control-panel></control-panel>
+      <!--       <control-panel></control-panel> -->
       <video-model :data="data"></video-model>
+      <tree-component></tree-component>
+      <update-data></update-data>
     </div>
   </div>
 </template>
@@ -24,18 +26,24 @@ export default {
   data() {
     return {
       initPosition: {
-        longitude: 121.3938116,
-        latitude: 29.9839426,
-        height: 180
+        longitude: 121.3895441,
+        latitude: 29.9837576,
+        height: 260
         // 763.2884569
       },
       initHeadingPitchRoll: {
-        heading: 0, // 绕着z轴旋转，指向东南西北
+        heading: 50, // 绕着z轴旋转，指向东南西北
         pitch: -30, // 俯视角，负值向下俯视 -30作用效果不错
         roll: 0 // 翻转效果
       },
       loaded: false
     };
+  },
+  created() {
+    // 加载河流数据
+    console.log("开始");
+    this.$store.dispatch("getRiverData");
+    console.log("创建");
   },
   mounted() {
     var _this = this;
@@ -43,24 +51,26 @@ export default {
       _this.data = response.data;
       _this.initViewer();
     });
-    console.log("Hello, World");
   },
   methods: {
     ...mapMutations(["setViewer"]),
     initViewer() {
       viewer = new Cesium.Viewer("cesiumContainer", {
+        geocoder: false, // 屏蔽定位搜索框
+        navigationHelpButton: false, // 屏蔽默认的导航帮助框
         scene3DOnly: true,
-        selectionIndicator: false,
+        selectionIndicator: false, // 取消点击显示的绿框
         baseLayerPicker: false,
         timeline: false,
-        animation: false
+        animation: false,
+        infoBox: false // 屏蔽默认创建的infooxbo组件，使用自己的弹窗
       });
       this.loaded = true;
       viewer.terrainProvider = this.addTerrain();
-      this.addImage();
+      // this.addImage();
       this.setInitPosistion();
       // 重写homebuttom事件
-      this.setHomeButton()
+      this.setHomeButton();
       // viewer.extend(Cesium.viewerCesiumInspectorMixin);
       this.$store.state.viewer = viewer;
       // 关闭这个防止水和BIM模型被遮挡
@@ -99,6 +109,7 @@ export default {
           roll: initialOrientation.roll
         }
       };
+      viewer.clock.shouldAnimate = true;
       viewer.scene.camera.setView(homeCameraView);
     },
     addTerrain() {
@@ -115,21 +126,47 @@ export default {
     },
     addImage() {
       // 将默认影像（必应）更换为Google影像
-      var google = new Cesium.UrlTemplateImageryProvider({
+      /*       var google = new Cesium.UrlTemplateImageryProvider({
         url: "http://mt0.google.cn/vt/lyrs=s&hl=zh-CN&x={x}&y={y}&z={z}",
         tilingScheme: new Cesium.WebMercatorTilingScheme(),
         maximumLevel: 20
       });
-      viewer.imageryLayers.addImageryProvider(google);
+      viewer.imageryLayers.addImageryProvider(google); */
+
+      /*       //高德二维地图自带路网注记
+      var vec = new Cesium.UrlTemplateImageryProvider({
+        url:
+          "http://webrd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}",
+        minimumLevel: 3,
+        maximumLevel: 18
+      });
+      viewer.imageryLayers.addImageryProvider(vec); */
+
+      //高德影像
+      var gdsat = new Cesium.UrlTemplateImageryProvider({
+        url:
+          "https://webst02.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}",
+        minimumLevel: 3,
+        maximumLevel: 18
+      });
+      //高德路网中文注记
+      var gdroadNoLabel = new Cesium.UrlTemplateImageryProvider({
+        url:
+          "http://webst02.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scale=1&style=8",
+        minimumLevel: 3,
+        maximumLevel: 18
+      });
+      viewer.imageryLayers.addImageryProvider(gdsat);
+      viewer.imageryLayers.addImageryProvider(gdroadNoLabel);
     },
     // 重新homebutton事件
     setHomeButton() {
-      var _this = this
+      var _this = this;
       viewer.homeButton.viewModel.command.beforeExecute.addEventListener(
         function(e) {
           e.cancel = true;
           // viewer.zoomTo(tileset, default_HeadingPitchRange);
-          _this.setInitPosistion()
+          _this.setInitPosistion();
         }
       );
     }
@@ -144,7 +181,9 @@ export default {
     PickModel: () => import("../components/Pick"), // 高亮显示选中的实体
     WanderModel: () => import("../components/Wander"), // 漫游飞行功能
     ControlPanel: () => import("../components/ControlPanel"),
-    VideoModel: () => import("../components/Video")
+    VideoModel: () => import("../components/Video"),
+    TreeComponent: () => import("../components/Tree"),
+    UpdateData: () => import("../components/UpdateData") // 每秒更新一次数据
   }
 };
 </script>

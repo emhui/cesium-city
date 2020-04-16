@@ -1,19 +1,5 @@
 <template>
   <div class="water-level">
-<!--     <div class="panel-tools">
-      <div class="item">
-        <input type="checkbox" name id @click="cbTerrain" />
-        <label for>地形检测</label>
-      </div>
-    </div>
-    <div class="item">
-      <input type="checkbox" name id @click="showFlood" />
-      <label for>洪水</label>
-    </div>
-    <div class="item">
-      <input type="checkbox" name id @click="startFlood" />
-      <label for>涨水</label>
-    </div> -->
   </div>
 </template>
 
@@ -52,50 +38,71 @@ export default {
   },
   mounted() {
     viewer = this.$store.state.viewer;
-    var scene = viewer.scene;
-    var _this = this;
-    var kmlOptions = {
-      camera: scene.camera,
-      canvas: scene.canvas,
-      clampToGround: true
-    };
-    this.data.forEach(element => {
-      if (element.type === "water-level") {
-        viewer.dataSources
-          .add(Cesium.KmlDataSource.load(element.url, kmlOptions))
-          .then(dataSources => {
-            dataSources.entities.values.forEach(entity => {
-              if (entity.label) {
-                // 开启深度检测，让模型遮挡它
-                entity.billboard.disableDepthTestDistance = 0
-                entity.label.disableDepthTestDistance = 0
+    this.addWaterLabel();
+    Bus.$on("update-river-data", () => {
+      this.waterLevelLabels[0].label.text = `实时水位: ${this.riverData[0].level.current.toFixed(
+        2
+      )}m\n实时流速: ${this.riverData[0].speed.current.toFixed(2)} m²/s`;
+      this.waterLevelLabels[1].label.text = `实时水位: ${this.riverData[1].level.current.toFixed(
+        2
+      )}m\n实时流速: ${this.riverData[1].speed.current.toFixed(2)} m²/s`;
+      this.waterLevelLabels[2].label.text = `实时水位: ${this.riverData[2].level.current.toFixed(
+        2
+      )}m\n实时流速: ${this.riverData[2].speed.current.toFixed(2)} m²/s`;
 
-                entity.label.text = "0mm";
-                entity.billboard.image = this.warnImages[0];
-                entity.billboard.width = 40;
-                // entity.billboard.translucencyByDistance = new Cesium.NearFarScalar(1.5e2, 1.0, 2.0e2, 0.0);
-                _this.waterLevelLabels.push(entity);
-              } else if (entity.name === "Submerged area") {
-                // 一开始加载出了不显示该区域
-                entity.show = false;
-                // 多边形没有这个属性
-                // entity.polygon.disableDepthTestDistance = Number.POSITIVE_INFINITY;
-                // entity.polygon.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND
-                entity.polygon.material = Cesium.Color.DEEPSKYBLUE.withAlpha(
-                  0.5
-                );
-
-                this.floodEntity = entity;
-
-                // this.createPrimitiveEntity(entity)
-                // this.floodEntity.show = false
-              }
-            });
-          });
-      }
+      /*       if (length) {
+        for (let i = 0; i < length; length++) {
+                    this.waterLevelLabels[i].label.text = `实时水位: ${this.riverData[
+            i
+          ].level.current.toFixed(2)}m
+          \n
+          实时流速: ${this.riverData[i].speed.current.toFixed(2)} m²/s`; 
+          console.log(
+            `实时水位: ${this.riverData[i].level.current.toFixed(2)}m
+          \n
+          实时流速: ${this.riverData[i].speed.current.toFixed(2)} m²/s`
+          );
+        }
+      } */
     });
   },
   methods: {
+    addWaterLabel() {
+      var scene = viewer.scene;
+      var _this = this;
+      var kmlOptions = {
+        camera: scene.camera,
+        canvas: scene.canvas,
+        clampToGround: true
+      };
+      this.data.forEach(element => {
+        if (element.type === "water-level") {
+          viewer.dataSources
+            .add(Cesium.KmlDataSource.load(element.url, kmlOptions))
+            .then(dataSources => {
+              dataSources.entities.values.forEach(entity => {
+                if (entity.label) {
+                  console.log(entity);
+
+                  entity.label.font = "10px sans-serif";
+                  entity.label.text = "实时水位:10.00m\n流速: 10 m/s";
+                  entity.billboard.image = this.warnImages[0];
+                  entity.billboard.width = 40;
+                  _this.waterLevelLabels.push(entity);
+                } else if (entity.name === "Submerged area") {
+                  // 一开始加载出了不显示该区域
+                  entity.show = false;
+                  entity.polygon.material = Cesium.Color.DEEPSKYBLUE.withAlpha(
+                    0.5
+                  );
+
+                  this.floodEntity = entity;
+                }
+              });
+            });
+        }
+      });
+    },
     createPrimitiveEntity(entity) {
       var River_Material = new Cesium.Material({
         fabric: {
@@ -138,20 +145,13 @@ export default {
         entity.label.text = this.waterHeight + "m";
       });
     },
-    clearFloodInterval(){
-      clearInterval(this.floodInterval)
-      this.floodInterval = null
+    clearFloodInterval() {
+      clearInterval(this.floodInterval);
+      this.floodInterval = null;
     },
     startFlood(e) {
-      this.clearFloodInterval()
+      this.clearFloodInterval();
       if (e.target.checked) {
-/*         this.floodInterval = setInterval(() => {
-          if (this.height > this.zmMaxHeight){
-            this.clearFloodInterval()
-          }
-          this.height += this.delayHeight
-          this.updateHeight(this.floodEntity, this.height)
-        }, 80); */
         var property = new Cesium.CallbackProperty(() => {
           this.height += this.delayHeight;
           if (this.zmMinHeight > this.height) {
@@ -161,14 +161,6 @@ export default {
         }, false);
         this.floodEntity.polygon.extrudedHeight = property;
       } else {
-/*         this.floodInterval = setInterval(() => {
-          if (this.height < this.zmMinHeight){
-            this.clearFloodInterval()
-          }
-          this.height -= this.delayHeight
-          this.updateHeight(this.floodEntity, this.height)
-        }, 80); */
-        // this.floodEntity.show = false;
         var property = new Cesium.CallbackProperty(() => {
           this.height -= this.delayHeight;
           if (this.zmMinHeight > this.heighti) {
@@ -216,12 +208,14 @@ export default {
     }
   },
   computed: {
-    ...mapState(["waterHeight"])
+    ...mapState(["waterHeight", "riverData"])
   },
   watch: {
     waterHeight() {
       this.waterLevelLabels.forEach(entity => {
-        entity.label.text = this.waterHeight + "m";
+        entity.label.text =
+          this.waterHeight + "m \n" + (this.waterHeight + 0.02) + "m";
+        entity.label.text = `实时水位:${this.waterHeight}m \n流速: ${this.waterHeight}m/s`;
       });
       var index = Math.floor(this.waterHeight / 10) - 1; // 10-20, 20
       if (

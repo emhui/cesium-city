@@ -1,0 +1,101 @@
+[
+  {
+    "title": "实时数据",
+    "key": "0-0",
+    "checked": false,
+    "children": [
+      {
+        "title": "实时天气",
+        "key": "0-0-0",
+        "value": "weather",
+        "checked": false
+      },
+      {
+        "title": "智能预警",
+        "key": "0-0-1",
+        "value": "warning",
+        "checked": false
+      },
+      {
+        "title": "实时视频",
+        "key": "0-0-2",
+        "value": "video",
+        "checked": false
+      },
+      {
+        "title": "沿线巡检",
+        "key": "0-0-3",
+        "value": "inspection",
+        "checked": false
+      }
+    ]
+  },
+  {
+    "title": "运行控制",
+    "key": "0-1",
+    "checked": false,
+    "children": [
+      {
+        "title": "泵房控制",
+        "key": "0-1-0",
+        "value": "pump",
+        "checked": false
+      },
+      {
+        "title": "水闸控制",
+        "key": "0-1-1",
+        "value": "gate",
+        "checked": false
+      },
+      {
+        "title": "支援阀控制",
+        "key": "0-1-2",
+        "value": "support-gate",
+        "checked": false
+      },
+      {
+        "title": "开启地形",
+        "key": "0-1-3",
+        "value": "terrain",
+        "checked": false
+      }
+    ]
+  },
+  {
+    "title": "地理数据",
+    "key": "0-2",
+    "checked": true,
+    "children": [
+      {
+        "title": "BIM模型",
+        "key": "0-2-0",
+        "value": "bim",
+        "checked": true
+      },
+      {
+        "title": "倾斜摄影",
+        "key": "0-2-1",
+        "value": "photography",
+        "checked": true
+      },
+      {
+        "title": "姚江",
+        "key": "0-2-2",
+        "value": "yaojiang",
+        "checked": true
+      },
+      {
+        "title": "慈江",
+        "key": "0-2-3",
+        "value": "cijiang",
+        "checked": true
+      },
+      {
+        "title": "水渠",
+        "key": "0-2-4",
+        "value": "canal",
+        "checked": false
+      }
+    ]
+  }
+]

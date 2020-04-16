@@ -1,13 +1,20 @@
 <template>
-  <div class="wander-model">
-    <!--     <div class="tools">
-      <div class="tools-item">
-        <input type="button" value="wander" @click="startWander()" />
-        <input type="button" :value="status" @click="pauseWander()" />
-        <input type="button" value="clear" @click="clearWander()" />
-      </div>
-    </div>-->
-  </div>
+    <a-card
+      ref="card"
+      class="card"
+      v-show="showCard"
+      :style="{left: toolsDiv.left, top: toolsDiv.top, width: toolsDiv.width}"
+      size="small"
+    >
+      <a slot="extra" @click="close">x</a>
+      <h2 slot="title" @mousedown="mousedown">#沿线巡检</h2>
+
+      <template class="ant-card-actions" slot="actions">
+        <a-button size="small" @click="startWander">开始</a-button>
+        <a-button size="small" @click="pauseWander">{{wanderStatus}}</a-button>
+        <a-button size="small" @click="clearWander">停止</a-button>
+      </template>
+    </a-card>
 </template>
 
 <script>
@@ -25,7 +32,7 @@ export default {
       this.startWander();
     });
     Bus.$on("clear-wander", () => {
-      this.clearWander()
+      this.clearWander();
     });
     Bus.$on("change-wander", checked => {
       if (checked) {
@@ -33,6 +40,9 @@ export default {
       } else {
         viewer.clock.shouldAnimate = true;
       }
+    });
+    Bus.$on("open-inspection", checked => {
+      this.showCard = checked;
     });
   },
   data() {
@@ -43,10 +53,42 @@ export default {
       num: 0, // 当前正在漫游路径编号
       status: "pasue", // 暂停
       Exection1: null, // 飞行事件
-      Exection2: null // 转向事件
+      Exection2: null, // 转向事件
+      showCard: false,
+      toolsDiv: {
+        left: "200px",
+        top: "40px",
+        width: "220px"
+      },
+      wanderStatus: "暂停"
     };
   },
   methods: {
+    close() {
+      this.showCard = false;
+    },
+    mousedown(event) {
+      console.log(event);
+
+      // this.selectElement = document.getElementById("card1");
+      
+      this.selectElement = this.$refs.card.$el;
+      var div1 = this.selectElement;
+      this.selectElement.style.cursor = "move";
+      this.isDowm = true;
+      var distanceX = event.clientX - this.selectElement.offsetLeft; // 鼠标相对于
+      var distanceY = event.clientY - this.selectElement.offsetTop;
+      document.onmousemove = function(ev) {
+        var oevent = ev || event;
+        div1.style.left = oevent.clientX - distanceX + "px";
+        div1.style.top = oevent.clientY - distanceY + "px";
+      };
+      document.onmouseup = function() {
+        document.onmousemove = null;
+        document.onmouseup = null;
+        div1.style.cursor = "default";
+      };
+    },
     startWander() {
       // 解析数据
       this.clearWander();
@@ -66,12 +108,11 @@ export default {
       }, 7000);
     },
     pauseWander() {
-      if (this.status === "pause") {
-        this.status = "continue";
-        viewer.clock.shouldAnimate = false;
+      viewer.clock.shouldAnimate = !viewer.clock.shouldAnimate;
+      if (viewer.clock.shouldAnimate) {
+        this.wanderStatus = "暂停";
       } else {
-        this.status = "pause";
-        viewer.clock.shouldAnimate = true;
+        this.wanderStatus = "继续";
       }
     },
     clearWander() {
@@ -269,15 +310,29 @@ export default {
         }
       });
     }
+  },
+  computed: {
+    showStatus() {
+      try {
+        console.log(viewer.clock.shouldAnimate);
+        if (viewer.clock.shouldAnimate) {
+          return "暂停";
+        } else {
+          return "继续";
+        }
+      } catch (error) {
+        return "暂停";
+      }
+    }
   }
 };
 </script>
 
-<style>
-.wander-model {
+<style scoped>
+.card {
   position: absolute;
-  top: 12em;
-  left: 18em;
   z-index: 1000;
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+  text-align: left;
 }
-</style>
+</style>>

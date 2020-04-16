@@ -1,5 +1,6 @@
 <template>
   <a-tree
+    v-if="show"
     class="tree"
     checkable
     checkStrictly
@@ -15,157 +16,99 @@
   />
 </template>
 <script>
-const treeData = [
-  {
-    title: "实时数据",
-    key: "0-0",
-    checked: false,
-    children: [
-      {
-        title: "实时天气",
-        key: "0-0-0",
-        value: "weather",
-        checked: true
-      },
-      {
-        title: "智能预警",
-        key: "0-0-1",
-        value: "warning",
-        checked: true
-      },
-      {
-        title: "实时视频",
-        key: "0-0-2",
-        value: "video",
-        checked: true
-      },
-      {
-        title: "沿线巡检",
-        key: "0-0-3",
-        value: "inspection",
-        checked: true
-      }
-    ]
-  },
-  {
-    title: "运行控制",
-    key: "0-1",
-    checked: true,
-    children: [
-      {
-        title: "泵房控制",
-        key: "0-1-0",
-        value: "pump",
-        checked: true
-      },
-      {
-        title: "水闸控制",
-        key: "0-1-1",
-        value: "gate",
-        checked: true
-      },
-      {
-        title: "支援阀控制",
-        key: "0-1-2",
-        value: "support-gate",
-        checked: true
-      },
-      {
-        title: "开启地形",
-        key: "0-1-3",
-        value: "terrain",
-        checked: true
-      }
-    ]
-  },
-  {
-    title: "地理数据",
-    key: "0-2",
-    checked: true,
-    children: [
-      {
-        title: "BIM模型",
-        key: "0-2-0",
-        value: "bim",
-        checked: true
-      },
-      {
-        title: "倾斜摄影",
-        key: "0-2-1",
-        value: "photography",
-        checked: true
-      },
-      {
-        title: "姚江",
-        key: "0-2-2",
-        value: "yaojiang",
-        checked: true
-      },
-      {
-        title: "慈江",
-        key: "0-2-3",
-        value: "cijiang",
-        checked: true
-      },
-      {
-        title: "水渠",
-        key: "0-2-4",
-        value: "canal",
-        checked: false
-      }
-    ]
-  }
-];
+import { mapState, mapMutations, mapGetters } from "vuex";
+import Bus from "../store/eventBus";
+
+var Cesium = require("cesium/Cesium");
+let viewer = null;
 
 export default {
   data() {
     return {
       expandedKeys: [],
       autoExpandParent: false,
-      checkedKeys: ["0-0-0"],
+      checkedKeys: [],
       selectedKeys: [],
-      treeData,
+      treeData: null,
       show: false
     };
   },
-  mounted(){
-    this.setInitSelected(treeData)
-  },
-  watch: {
-    /* checkedKeys(val) {
-      console.log("onCheck", val);
-    } */
+  mounted() {
+    viewer = this.$store.state.viewer;
+    var _this = this;
+    this.$http.get("data/treeData.json").then(response => {
+      console.log(response.data);
+      _this.treeData = response.data;
+      _this.setInitSelected(_this.treeData);
+      _this.show = true;
+    });
   },
   methods: {
     onExpand(expandedKeys) {
-      console.log("onExpand", expandedKeys);
+      // console.log("onExpand", expandedKeys);
       // if not set autoExpandParent to false, if children expanded, parent can not collapse.
       // or, you can remove all expanded children keys.
       this.expandedKeys = expandedKeys;
       this.autoExpandParent = false;
     },
-    onCheck(checkedKeys) {
-      console.log("onCheck", checkedKeys);
-      this.checkedKeys = checkedKeys;
-    },
     onSelect(selectedKeys, info) {
       console.log("onSelect", info);
       this.selectedKeys = selectedKeys;
     },
-    onChecked(checkedKey, e){
-      console.log(e.node.value);
-      console.log(e.checked);
-      
+    onChecked(checkedKey, e) {
+      var key = e.node.value;
+      var checked = e.checked;
+      switch (key) {
+        case "weather":
+          Bus.$emit("update-rain", checked);
+          break;
+        case "warning":
+          this.$message.warning("开发中...");
+          break;
+        case "video":
+          Bus.$emit("open-video", checked);
+          break;
+        case "inspection":
+          Bus.$emit("open-inspection", checked);
+          break;
+        case "pump":
+          this.$message.warning("开发中...");
+          break;
+        case "gate":
+          Bus.$emit("move-to-gate", checked);
+          break;
+        case "support-gate":
+          this.$message.warning("开发中...");
+          break;
+        case "terrain":
+          viewer.scene.globe.depthTestAgainstTerrain = checked;
+          break;
+        case "photography":
+          this.$message.warning("开发中...");
+          break;
+        case "yaojiang":
+          this.$message.warning("开发中...");
+          break;
+        case "cijiang":
+          Bus.$emit("show-hide-cijiang", checked)
+          break;
+        case "canal":
+          this.$message.warning("开发中...");
+          break;
+        default:
+          break;
+      }
     },
-    setInitSelected(treeData){
-      treeData.forEach( data => {
+    // 根据json中的数据，默认选择部分节点
+    setInitSelected(treeData) {
+      treeData.forEach(data => {
         if (data.checked) {
-          this.checkedKeys.push(data.key)
+          this.checkedKeys.push(data.key);
         }
-        if (data.children){
-          this.setInitSelected(data.children)
+        if (data.children) {
+          this.setInitSelected(data.children);
         }
-      })
+      });
     }
   }
 };
@@ -173,10 +116,13 @@ export default {
 
 <style scoped>
 .tree {
-  width: 200px;
-  border: 1px solid #1890ff;
+  position: absolute;
+  top: 8em;
+  left: 2em;
+  min-width: 150px;
   text-align: left;
-  margin: 10px 0 0 10px;
+  background: rgba(42, 42, 42, 0.7);
   border-radius: 2px;
+  z-index: 1000;
 }
 </style>

@@ -1,0 +1,53 @@
+[
+    {
+        "name": "inland-river",
+        "speed": {
+            "max": 100,
+            "min": 20,
+            "current": 20,
+            "range": 3,
+            "step" : 1
+        },
+        "level": {
+            "max": 100,
+            "min": 10,
+            "current": 20,
+            "range": 3,
+            "step" : 1
+        }
+    },
+    {
+        "name": "outland-river",
+        "speed": {
+            "max": 100,
+            "min": 10,
+            "current": 10,
+            "range": 3,
+            "step" : 1
+        },
+        "level": {
+            "max": 100,
+            "min": 10,
+            "current": 10,
+            "range": 3,
+            "step" : 1
+        }
+    },
+    {
+        "name": "canal",
+        "speed": {
+            "max": 100,
+            "min": 10,
+            "current": 15,
+            "range": 3,
+            "step" : 1
+        },
+        "level": {
+            "max": 100,
+            "min": 10,
+            "current": 15,
+            "range": 3,
+            "step" : 1
+        }
+    }
+]

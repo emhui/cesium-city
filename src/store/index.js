@@ -1,5 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import axios from "axios"
 // import Cesium from 'cesium/Cesium'
 var Cesium = require("cesium/Cesium");
 Vue.use(Vuex);
@@ -11,6 +12,8 @@ export default new Vuex.Store({
     pickPosition: null, // 记录鼠标拾取的位置,这个坐标是屏幕坐标
     valves: [], // 存储阀门数据
     rivers: [], // 存储河流数据
+    selectedEntity: null, // 当前被选中的实体
+    riverData: [], // 河流水位水速数据
   },
   mutations: {
     setViewer(state, viewer) {
@@ -20,7 +23,13 @@ export default new Vuex.Store({
       state.pickPosition = pickPosition
     },
     addWaterHeight(state) {
-      state.waterHeight += 1
+      // state.waterHeight += 1
+      state.riverData.forEach( el => {
+        el.speed.min += el.speed.step
+        el.level.min += el.level.step
+        console.log(el.speed.min, el.speed.step);
+        
+      })
     },
     subWaterHeight(state) {
       state.waterHeight -= 1
@@ -57,6 +66,14 @@ export default new Vuex.Store({
     updateRiversHeight(state, obj) {
       state.rivers[obj.index].height = obj.height
     },
+    // 初始化河流水位水速等数据
+    initRiverData(state, riverData) {
+      state.riverData = riverData
+    },
+    // 每秒更新一次数据
+    updateRiverData(state, riverData){
+      state.riverData = riverData
+    }
   },
   getters: {
     showLongitude(state) {
@@ -79,6 +96,20 @@ export default new Vuex.Store({
               result.push({title:`阀${i+1}`})
             }
             return result */
+    },
+    showWaterLevel(state){
+      return state.riverData[0].level.current.toFixed(2)
+    }
+  },
+  actions: {
+    getRiverData(context) {
+      console.log("下载");
+      
+      axios.get("/data/riverData.json").then(response => {
+        console.log(response.data);
+        
+        context.commit("initRiverData", response.data)
+      });
     }
   }
 });

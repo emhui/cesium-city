@@ -4,6 +4,7 @@
 
 <script>
 import { mapState, mapMutations } from "vuex";
+import Bus from "../store/eventBus";
 var Cesium = require("cesium/Cesium");
 
 let viewer = null;
@@ -93,6 +94,7 @@ export default {
     },
     Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
+    // viewer.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
     // 鼠标点击事件，选中实体，高亮，并且显示数据
     viewer.screenSpaceEventHandler.setInputAction(function onLeftClick(
       movement
@@ -110,7 +112,7 @@ export default {
       }
       if (pickedEntity.id) {
         pickedEntity = pickedEntity.id;
-        if (pickedEntity.polygon) {
+        if (pickedEntity.polygon && pickedEntity.name.startsWith("阀")) {
           // Select the feature if it's not already selected
           if (selected.entity === pickedEntity) {
             return;
@@ -138,30 +140,8 @@ export default {
             'Loading <div class="cesium-infoBox-loading"></div>';
           // 将当前的实体设置为系统选中的实体
           viewer.selectedEntity = selectedEntity;
-          selectedEntity.description =
-            '<table class="cesium-infoBox-defaultTable"><tbody>' +
-            "<tr><th>BIN</th><td>" +
-            pickedEntity.name +
-            "</td></tr>" +
-            "<tr><th>DOITT ID</th><td>" +
-            pickedEntity.id +
-            "</td></tr>" +
-            "<tr><th>SOURCE ID</th><td>" +
-            pickedEntity.name +
-            "</td></tr>" +
-            "<tr><th>Longitude</th><td>" +
-            pickedEntity.name +
-            "</td></tr>" +
-            "<tr><th>Latitude</th><td>" +
-            pickedEntity.name +
-            "</td></tr>" +
-            "<tr><th>Height</th><td>" +
-            pickedEntity.name +
-            "</td></tr>" +
-            "<tr><th>Terrain Height (Ellipsoid)</th><td>" +
-            pickedEntity.name +
-            "</td></tr>" +
-            "</tbody></table>";
+          // 选中实体后发送消息
+          Bus.$emit("selected-entity");
         }
       }
     },

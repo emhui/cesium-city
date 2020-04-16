@@ -1,11 +1,33 @@
 <template>
-  <div class="video-model">
-    <video ref="video" id="trailer" width="250"  loop crossorigin controls style="display:none">
-      <source
-        src="http://127.0.0.1:9090/public/video/demo.webm"
-        type="video/webm"
-      />
-      <source src="http://127.0.0.1:9090/public/video/hope.mp4" type="video/mp4" />
+  <div>
+    <a-card
+      ref="card"
+      class="card"
+      v-show="showCard"
+      :style="{left: toolsDiv.left, top: toolsDiv.top, width: toolsDiv.width}"
+      size="small"
+    >
+      <a slot="extra" @click="close">x</a>
+      <h2 slot="title" @mousedown="mousedown">#实时监控</h2>
+
+      <template class="ant-card-actions" slot="actions">
+        <a-checkbox @change="changeShow" :checked="showVideo">显示</a-checkbox>
+        <a-button size="small" @click="clickPlay">{{showVideoStatus}}</a-button>
+      </template>
+    </a-card>
+    <video
+      ref="video"
+      id="trailer"
+      width="250"
+      muted
+      autoplay
+      loop
+      crossorigin
+      controls
+      style="display:none"
+    >
+      <!--         <source src="http://127.0.0.1:9090/public/video/demo.webm" type="video/webm" /> -->
+      <source :src="videoUrl" type="video/mp4" />
       <source
         src="https://sandcastle.cesium.com/SampleData/videos/big-buck-bunny_trailer.mov"
         type="video/quicktime"
@@ -26,7 +48,15 @@ export default {
   props: ["data"],
   data() {
     return {
-      videoEntity: null //
+      videoEntity: null, //
+      showCard: false,
+      toolsDiv: {
+        left: "200px",
+        top: "40px",
+        width: "220px"
+      },
+      videoStatus: 0, // 视频状态，0 是暂停 1 是播放
+      videoUrl: ""
     };
   },
   mounted() {
@@ -49,9 +79,13 @@ export default {
             console.log(dataSources);
             dataSources.entities.values.forEach(entity => {
               this.videoEntity = entity;
+              this.videoEntity.show = false;
               entity.polygon && (entity.polygon.material = _this.$refs.video);
+              this.pause()
             });
           });
+      }else if (element.type === "video-url"){
+        this.videoUrl = element.url
       }
     });
 
@@ -63,42 +97,96 @@ export default {
     });
 
     Bus.$on("update-video", checked => {
+      (checked && this.show()) || this.hide();
+    });
+
+    Bus.$on("open-video", checked => {
       if (checked) {
-        this.show();
+        this.videoEntity.show = true;
+        this.showCard = true;
+        viewer.flyTo(this.videoEntity);
       } else {
-        this.hide();
+        this.videoEntity.show = false;
+        this.showCard = false;
       }
     });
   },
   methods: {
+    // 是否显示video,默认不显示
+    changeShow(e) {
+      console.log(e.target.checked);
+      if (e.target.checked) this.show();
+      else this.hide();
+      /*       e.target.checked && this.show() || this.hide() */
+    },
+    clickPlay() {
+      // this.videoStatus && this.pause() || this.play()
+      this.videoStatus = !this.videoStatus;
+    },
     play() {
-      console.log("play");
-      
       this.$refs.video.play();
     },
     pause() {
-      console.log("pause");
       this.$refs.video.pause();
     },
     show() {
-      console.log("show");
-      
       this.videoEntity.show = true;
     },
     hide() {
-      console.log("hide");
-      
       this.videoEntity.show = false;
+    },
+    close() {
+      this.showCard = false;
+    },
+    mousedown(event) {
+      this.selectElement = this.$refs.card.$el;
+      var div1 = this.selectElement;
+      this.selectElement.style.cursor = "move";
+      this.isDowm = true;
+      var distanceX = event.clientX - this.selectElement.offsetLeft; // 鼠标相对于
+      var distanceY = event.clientY - this.selectElement.offsetTop;
+      document.onmousemove = function(ev) {
+        var oevent = ev || event;
+        div1.style.left = oevent.clientX - distanceX + "px";
+        div1.style.top = oevent.clientY - distanceY + "px";
+      };
+      document.onmouseup = function() {
+        document.onmousemove = null;
+        document.onmouseup = null;
+        div1.style.cursor = "default";
+      };
+    }
+  },
+  computed: {
+    showVideoStatus() {
+      return (!this.videoStatus && "播放") || "暂停";
+    },
+    showVideo(){
+      try {
+        return this.videoEntity.show
+      } catch (error) {
+        return false
+      }
+    }
+  },
+  watch: {
+    videoStatus() {
+      if (this.videoStatus) this.play();
+      else this.pause();
     }
   }
 };
 </script>
 
 <style lang="scss" scoped>
-.video-model {
+.trailer {
+  display: none;
+}
+
+.card {
   position: absolute;
-  right: 2em;
-  bottom: 2em;
   z-index: 1000;
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+  text-align: left;
 }
 </style>

@@ -1,16 +1,5 @@
 <template>
   <div id="river-model">
-    <!--     <div class="backdrop" id="menu">
-      <h2>河流</h2>
-      <div class="nowrap" v-for="(river, index) in rivers">
-        <label for>{{river.mark}}</label>
-        <input type="checkbox" name id @click="showRiver($event, index)" checked />
-        <br />
-        <input type="button" value="上升" @click="up(index)" />
-        <input type="button" value="下降" @click="down(index)" />
-      </div>
-      <br />
-    </div>-->
   </div>
 </template>
 
@@ -102,6 +91,11 @@ export default {
         this.down(index);
       }
     });
+    Bus.$on("show-hide-cijiang", checked => {
+      this.rivers.forEach(el => {
+        el.entity.show = checked
+      })
+    })
   },
   methods: {
     addRiver() {
@@ -129,10 +123,10 @@ export default {
 
       this.data.forEach(element => {
         if (element.type === "river") {
-          // this.addPrimitiveRiver(element.url, kmlOptions, River_Material);
-          viewer.dataSources.add(
+          this.addPrimitiveRiver(element.url, kmlOptions, River_Material);
+/*           viewer.dataSources.add(
             Cesium.KmlDataSource.load(element.url, kmlOptions)
-          );
+          ); */
         }
       });
     },
@@ -258,26 +252,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.backdrop {
-  display: inline-block;
-  background: rgba(42, 42, 42, 0.7);
-  border-radius: 5px;
-  border: 1px solid #444;
-
-  padding: 5px 10px;
-  color: #fff;
-  line-height: 150%;
-  font-size: small;
-  z-index: 1000;
-}
-#menu {
-  position: absolute;
-  left: 2em;
-  top: 20em;
-}
-
-.nowrap {
-  margin-top: 1em;
-  white-space: nowrap;
-}
 </style>

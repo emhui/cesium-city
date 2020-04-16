@@ -1,19 +1,5 @@
 <template>
   <div id="rain-model">
-    <!--     <div class="control-panel">
-      <div class="rain-box">
-        <div class="rain__item">
-          <input
-            type="checkbox"
-            name="is-rain"
-            id="is-rain"
-            v-model="status"
-            @click="onClick($event)"
-          />
-          <label for="is-rain">下雨</label>
-        </div>
-      </div>
-    </div>-->
   </div>
 </template>
 
@@ -122,7 +108,7 @@ export default {
     startRain() {
       // rain
       // 粒子更新函数
-      /*       this.initPartileSystem();
+      /*       this.initPartileSystem();in
       this.viewer.scene.primitives.add(this.rainSystem); */
       this.showRain();
       this.rainCircumstance();
