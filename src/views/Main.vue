@@ -13,12 +13,15 @@
       <video-model :data="data"></video-model>
       <tree-component></tree-component>
       <update-data></update-data>
+      <pump></pump>
+      <!--       <photography :data="data"></photography> -->
     </div>
   </div>
 </template>
 
 <script>
 import { mapState, mapMutations, mapGetters } from "vuex";
+import Bus from "../store/eventBus";
 var Cesium = require("cesium/Cesium");
 
 let viewer = null;
@@ -41,15 +44,17 @@ export default {
   },
   created() {
     // 加载河流数据
-    console.log("开始");
     this.$store.dispatch("getRiverData");
-    console.log("创建");
   },
   mounted() {
     var _this = this;
     this.$http.get("data/data.json").then(response => {
       _this.data = response.data;
       _this.initViewer();
+    });
+
+    Bus.$on("back-home", checked => {
+      checked && this.setInitPosistion();
     });
   },
   methods: {
@@ -67,14 +72,14 @@ export default {
       });
       this.loaded = true;
       viewer.terrainProvider = this.addTerrain();
-      // this.addImage();
+      this.addImage();
       this.setInitPosistion();
       // 重写homebuttom事件
       this.setHomeButton();
       // viewer.extend(Cesium.viewerCesiumInspectorMixin);
       this.$store.state.viewer = viewer;
       // 关闭这个防止水和BIM模型被遮挡
-      viewer.scene.globe.depthTestAgainstTerrain = false;
+      viewer.scene.globe.depthTestAgainstTerrain = true;
     },
     setTerrain() {
       viewer.terrainProvider = Cesium.createWorldTerrain({
@@ -126,12 +131,12 @@ export default {
     },
     addImage() {
       // 将默认影像（必应）更换为Google影像
-      /*       var google = new Cesium.UrlTemplateImageryProvider({
+      var google = new Cesium.UrlTemplateImageryProvider({
         url: "http://mt0.google.cn/vt/lyrs=s&hl=zh-CN&x={x}&y={y}&z={z}",
         tilingScheme: new Cesium.WebMercatorTilingScheme(),
         maximumLevel: 20
       });
-      viewer.imageryLayers.addImageryProvider(google); */
+      viewer.imageryLayers.addImageryProvider(google);
 
       /*       //高德二维地图自带路网注记
       var vec = new Cesium.UrlTemplateImageryProvider({
@@ -143,7 +148,7 @@ export default {
       viewer.imageryLayers.addImageryProvider(vec); */
 
       //高德影像
-      var gdsat = new Cesium.UrlTemplateImageryProvider({
+      /*       var gdsat = new Cesium.UrlTemplateImageryProvider({
         url:
           "https://webst02.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}",
         minimumLevel: 3,
@@ -157,7 +162,7 @@ export default {
         maximumLevel: 18
       });
       viewer.imageryLayers.addImageryProvider(gdsat);
-      viewer.imageryLayers.addImageryProvider(gdroadNoLabel);
+      viewer.imageryLayers.addImageryProvider(gdroadNoLabel); */
     },
     // 重新homebutton事件
     setHomeButton() {
@@ -183,7 +188,9 @@ export default {
     ControlPanel: () => import("../components/ControlPanel"),
     VideoModel: () => import("../components/Video"),
     TreeComponent: () => import("../components/Tree"),
-    UpdateData: () => import("../components/UpdateData") // 每秒更新一次数据
+    UpdateData: () => import("../components/UpdateData"), // 每秒更新一次数据
+    /*     Photography: () => import("../components/Photography") */
+    Pump: () => import("../components/Pump")
   }
 };
 </script>

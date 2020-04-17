@@ -1,20 +1,31 @@
 <template>
-    <a-card
-      ref="card"
-      class="card"
-      v-show="showCard"
-      :style="{left: toolsDiv.left, top: toolsDiv.top, width: toolsDiv.width}"
-      size="small"
-    >
-      <a slot="extra" @click="close">x</a>
-      <h2 slot="title" @mousedown="mousedown">#沿线巡检</h2>
+  <a-card
+    ref="card"
+    class="card"
+    v-show="showCard"
+    :style="{left: toolsDiv.left, top: toolsDiv.top, width: toolsDiv.width}"
+    size="small"
+  >
+    <a slot="extra" @click="close">x</a>
+    <h2 slot="title" @mousedown="mousedown">#沿线巡检</h2>
 
-      <template class="ant-card-actions" slot="actions">
-        <a-button size="small" @click="startWander">开始</a-button>
-        <a-button size="small" @click="pauseWander">{{wanderStatus}}</a-button>
-        <a-button size="small" @click="clearWander">停止</a-button>
-      </template>
-    </a-card>
+    <template class="ant-card-actions" slot="actions">
+      <!--       <a-button size="small" @click="startWander">开始</a-button> -->
+      <a-dropdown>
+        <a-menu slot="overlay" @click="startWander">
+          <a-menu-item key="0">内河</a-menu-item>
+          <a-menu-item key="1">外河</a-menu-item>
+          <a-menu-item key="2">水渠</a-menu-item>
+        </a-menu>
+        <a-button size="small">
+          开始
+          <a-icon type="down" />
+        </a-button>
+      </a-dropdown>
+      <a-button size="small" @click="pauseWander">{{wanderStatus}}</a-button>
+      <a-button size="small" @click="clearWander">停止</a-button>
+    </template>
+  </a-card>
 </template>
 
 <script>
@@ -43,6 +54,7 @@ export default {
     });
     Bus.$on("open-inspection", checked => {
       this.showCard = checked;
+      // this.flyToInitPoint()
     });
   },
   data() {
@@ -60,7 +72,8 @@ export default {
         top: "40px",
         width: "220px"
       },
-      wanderStatus: "暂停"
+      wanderStatus: "暂停",
+      routers: ["内河", "外河", "水渠"]
     };
   },
   methods: {
@@ -71,7 +84,7 @@ export default {
       console.log(event);
 
       // this.selectElement = document.getElementById("card1");
-      
+
       this.selectElement = this.$refs.card.$el;
       var div1 = this.selectElement;
       this.selectElement.style.cursor = "move";
@@ -89,8 +102,7 @@ export default {
         div1.style.cursor = "default";
       };
     },
-    startWander() {
-      // 解析数据
+    flyToInitPoint() {
       this.clearWander();
       viewer.clock.shouldAnimate = true;
       // 飞行
@@ -102,6 +114,10 @@ export default {
         ), //定位坐标点，建议使用谷歌地球坐标位置无偏差
         duration: 7 //定位的时间间隔
       });
+    },
+    startWander(e) {
+      this.$message.success(`开始巡检${this.routers[e.key]}`);
+      this.flyToInitPoint();
       var _this = this;
       setTimeout(function() {
         _this.flyExtent();
@@ -290,11 +306,10 @@ export default {
             .add(Cesium.KmlDataSource.load(data.url, options))
             .then(dataSources => {
               dataSources.entities.values.forEach(entity => {
-                console.log(entity);
-
+                entity.polyline.heightReference =
+                  Cesium.HeightReference.CLAMP_TO_GROUND;
                 // 设置一下路径贴地
                 // entity.polyline.clampToGround = new ConstantProperty(true);
-                console.log(entity);
                 var positions = entity.polyline.positions._value;
                 var mark = positions.map(element => {
                   var cartographic = Cesium.Cartographic.fromCartesian(element);

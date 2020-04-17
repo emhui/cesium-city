@@ -27,8 +27,6 @@ export default new Vuex.Store({
       state.riverData.forEach( el => {
         el.speed.min += el.speed.step
         el.level.min += el.level.step
-        console.log(el.speed.min, el.speed.step);
-        
       })
     },
     subWaterHeight(state) {

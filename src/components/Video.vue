@@ -76,16 +76,45 @@ export default {
         viewer.dataSources
           .add(Cesium.KmlDataSource.load(element.url, kmlOptions))
           .then(dataSources => {
-            console.log(dataSources);
             dataSources.entities.values.forEach(entity => {
+              console.log(entity);
+              entity.show = false
+              if (entity.name === "video-point") {
+                var position = entity.position;
+                var heading = Cesium.Math.toRadians(30);
+                var pitch = 0;
+                var roll = 0;
+                var hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
+                var orientation = Cesium.Transforms.headingPitchRollQuaternion(
+                  position._value,
+                  hpr
+                );
+                console.log(orientation);
+
+                this.videoEntity = viewer.entities.add({
+                  name: "Red box with black outline",
+                  position: position,
+                  show: false,
+                  box: {
+                    dimensions: new Cesium.Cartesian3(160.0, 1.0, 90.0),
+                    material: _this.$refs.video,
+                    outline: true,
+                    outlineColor: Cesium.Color.BLACK,
+                    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+                  },
+                  orientation: orientation
+                }); 
+              }
+              /*               entity.polygon.extrudedHeight = 10
               this.videoEntity = entity;
               this.videoEntity.show = false;
               entity.polygon && (entity.polygon.material = _this.$refs.video);
-              this.pause()
+              entity.polygon.material.repeat = new Cartesian2(8.0, 8.0)
+              this.pause() */
             });
           });
-      }else if (element.type === "video-url"){
-        this.videoUrl = element.url
+      } else if (element.type === "video-url") {
+        this.videoUrl = element.url;
       }
     });
 
@@ -104,7 +133,13 @@ export default {
       if (checked) {
         this.videoEntity.show = true;
         this.showCard = true;
-        viewer.flyTo(this.videoEntity);
+        viewer.flyTo(this.videoEntity, {
+          offset: {
+            heading: Cesium.Math.toRadians(28.0),
+            pitch: Cesium.Math.toRadians(-1),
+            range: 300
+          }
+        });
       } else {
         this.videoEntity.show = false;
         this.showCard = false;
@@ -161,11 +196,11 @@ export default {
     showVideoStatus() {
       return (!this.videoStatus && "播放") || "暂停";
     },
-    showVideo(){
+    showVideo() {
       try {
-        return this.videoEntity.show
+        return this.videoEntity.show;
       } catch (error) {
-        return false
+        return false;
       }
     }
   },

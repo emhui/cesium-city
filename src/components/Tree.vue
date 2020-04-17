@@ -71,8 +71,11 @@ export default {
         case "inspection":
           Bus.$emit("open-inspection", checked);
           break;
+        case "home":
+          Bus.$emit("back-home", checked);
+          break;
         case "pump":
-          this.$message.warning("开发中...");
+          Bus.$emit("open-pump", checked);
           break;
         case "gate":
           Bus.$emit("move-to-gate", checked);

@@ -1,6 +1,5 @@
 <template>
-  <div class="water-level">
-  </div>
+  <div class="water-level"></div>
 </template>
 
 <script>
@@ -40,30 +39,15 @@ export default {
     viewer = this.$store.state.viewer;
     this.addWaterLabel();
     Bus.$on("update-river-data", () => {
-      this.waterLevelLabels[0].label.text = `实时水位: ${this.riverData[0].level.current.toFixed(
+      this.waterLevelLabels[0].label.text = `水位: ${this.riverData[0].level.current.toFixed(
         2
-      )}m\n实时流速: ${this.riverData[0].speed.current.toFixed(2)} m²/s`;
-      this.waterLevelLabels[1].label.text = `实时水位: ${this.riverData[1].level.current.toFixed(
+      )}m\n流速: ${this.riverData[0].speed.current.toFixed(2)} m²/s`;
+      this.waterLevelLabels[1].label.text = `水位: ${this.riverData[1].level.current.toFixed(
         2
-      )}m\n实时流速: ${this.riverData[1].speed.current.toFixed(2)} m²/s`;
-      this.waterLevelLabels[2].label.text = `实时水位: ${this.riverData[2].level.current.toFixed(
+      )}m\n流速: ${this.riverData[1].speed.current.toFixed(2)} m²/s`;
+      this.waterLevelLabels[2].label.text = `水位: ${this.riverData[2].level.current.toFixed(
         2
-      )}m\n实时流速: ${this.riverData[2].speed.current.toFixed(2)} m²/s`;
-
-      /*       if (length) {
-        for (let i = 0; i < length; length++) {
-                    this.waterLevelLabels[i].label.text = `实时水位: ${this.riverData[
-            i
-          ].level.current.toFixed(2)}m
-          \n
-          实时流速: ${this.riverData[i].speed.current.toFixed(2)} m²/s`; 
-          console.log(
-            `实时水位: ${this.riverData[i].level.current.toFixed(2)}m
-          \n
-          实时流速: ${this.riverData[i].speed.current.toFixed(2)} m²/s`
-          );
-        }
-      } */
+      )}m\n流速: ${this.riverData[2].speed.current.toFixed(2)} m²/s`;
     });
   },
   methods: {
@@ -85,7 +69,7 @@ export default {
                   console.log(entity);
 
                   entity.label.font = "10px sans-serif";
-                  entity.label.text = "实时水位:10.00m\n流速: 10 m/s";
+                  entity.label.text = "水位:10.00m\n流速: 10 m/s";
                   entity.billboard.image = this.warnImages[0];
                   entity.billboard.width = 40;
                   _this.waterLevelLabels.push(entity);
@@ -215,7 +199,7 @@ export default {
       this.waterLevelLabels.forEach(entity => {
         entity.label.text =
           this.waterHeight + "m \n" + (this.waterHeight + 0.02) + "m";
-        entity.label.text = `实时水位:${this.waterHeight}m \n流速: ${this.waterHeight}m/s`;
+        entity.label.text = `水位:${this.waterHeight}m \n流速: ${this.waterHeight}m/s`;
       });
       var index = Math.floor(this.waterHeight / 10) - 1; // 10-20, 20
       if (

@@ -24,7 +24,6 @@
 </template>
 
 <script>
-// import Cesium from "cesium/Cesium";
 import { mapState, mapMutations, mapGetters } from "vuex";
 import Bus from "../store/eventBus";
 
@@ -73,7 +72,15 @@ export default {
       }
     });
     Bus.$on("move-to-gate", checked => {
-      checked && viewer.flyTo(this.valveList[0].entity);
+      
+      checked &&
+        viewer.flyTo(this.valveList[1].entity, {
+          offset: {
+            heading: Cesium.Math.toRadians(90.0),
+            pitch: Cesium.Math.toRadians(-25),
+            range: 100
+          }
+        });
     });
     // 选中实体事件
     Bus.$on("selected-entity", () => {
@@ -153,7 +160,7 @@ export default {
             .then(dataSources => {
               dataSources.entities.values.forEach(entity => {
                 if (entity.polygon) {
-                  console.log(entity);
+                  entity.polygon.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND
                   let obj = {
                     entity: entity, // 阀门实体对象
                     status: -1, // 阀门状态，-1是关闭，0是暂停，1是开启

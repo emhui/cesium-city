@@ -146,12 +146,13 @@ export default {
             var polygon = new Cesium.PolygonGeometry({
               polygonHierarchy: new Cesium.PolygonHierarchy(positions),
               /*               extrudedHeight: 10, */
+/*               height: 0, */
               height: 0,
               vertexFormat: Cesium.EllipsoidSurfaceAppearance.VERTEX_FORMAT
               //  heightReference : Cesium.HeightReference.RELATIVE_TO_GROUND,
             });
 
-            var River = new Cesium.Primitive({
+            var River = new Cesium.GroundPrimitive({
               geometryInstances: new Cesium.GeometryInstance({
                 geometry: polygon
               }),
