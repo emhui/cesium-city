@@ -69,7 +69,7 @@ export default {
       showCard: false,
       toolsDiv: {
         left: "200px",
-        top: "40px",
+        top: "4em",
         width: "220px"
       },
       wanderStatus: "暂停",
@@ -296,7 +296,6 @@ export default {
 
       this.data.forEach(data => {
         if (data.type === "wander") {
-          console.log(data);
           var options = {
             camera: scene.camera,
             canvas: scene.canvas,
@@ -306,8 +305,9 @@ export default {
             .add(Cesium.KmlDataSource.load(data.url, options))
             .then(dataSources => {
               dataSources.entities.values.forEach(entity => {
-                entity.polyline.heightReference =
-                  Cesium.HeightReference.CLAMP_TO_GROUND;
+/*                 entity.polyline.heightReference =
+                  Cesium.HeightReference.CLAMP_TO_GROUND; */
+                  entity.show = false
                 // 设置一下路径贴地
                 // entity.polyline.clampToGround = new ConstantProperty(true);
                 var positions = entity.polyline.positions._value;

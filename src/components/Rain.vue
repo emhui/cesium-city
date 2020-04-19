@@ -1,6 +1,5 @@
 <template>
-  <div id="rain-model">
-  </div>
+  <div id="rain-model"></div>
 </template>
 
 <script>
@@ -28,6 +27,15 @@ export default {
         this.removeStage();
       }
     });
+
+    // 隐藏下雨效果
+    Bus.$on("hide-rain", () => {
+      this.removeStage();
+    });
+    // 展示下雨效果
+    Bus.$on("show-rain", () => {
+      this.showRain();
+    });
   },
   methods: {
     onClick(event) {
@@ -43,6 +51,7 @@ export default {
     startRainInterval() {
       this.rainInterval = setInterval(() => {
         this.addWaterHeight();
+        Bus.$emit("update-river-data")
         // Bus.$emit("water-height-up");
       }, 1000);
     },

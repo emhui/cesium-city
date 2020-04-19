@@ -4,7 +4,7 @@
 
 <script>
 import Bus from "../store/eventBus";
-import { mapState, mapMutations } from "vuex";
+import { mapState, mapMutations, mapGetters } from "vuex";
 var Cesium = require("cesium/Cesium");
 
 let viewer = null;
@@ -38,19 +38,43 @@ export default {
   mounted() {
     viewer = this.$store.state.viewer;
     this.addWaterLabel();
+    var _this = this;
     Bus.$on("update-river-data", () => {
-      this.waterLevelLabels[0].label.text = `水位: ${this.riverData[0].level.current.toFixed(
-        2
-      )}m\n流速: ${this.riverData[0].speed.current.toFixed(2)} m²/s`;
-      this.waterLevelLabels[1].label.text = `水位: ${this.riverData[1].level.current.toFixed(
-        2
-      )}m\n流速: ${this.riverData[1].speed.current.toFixed(2)} m²/s`;
-      this.waterLevelLabels[2].label.text = `水位: ${this.riverData[2].level.current.toFixed(
-        2
-      )}m\n流速: ${this.riverData[2].speed.current.toFixed(2)} m²/s`;
+      // 处理预警
+
+      Bus.$emit(
+        "auto-open-gate",
+        _this.getCurrentWarningLevel(_this.riverData[1].level.current)
+      );
+
+      // 更新标签
+      _this.waterLevelLabels.forEach((entity, index, arrays) => {
+/*         console.log(
+          `${entity.name}当前预警等级是${_this.getCurrentWarningLevel(
+            _this.riverData[index].level.current
+          )}`
+        ); */
+        // 实时更新内外河和水渠的水位
+        Bus.$emit(
+          "update-river-height",
+          index,
+          parseFloat(_this.riverData[index].level.current.toFixed(2)) / 3
+        );
+        // 获取各个河流的预警等级
+        var warnIndex = _this.getCurrentWarningLevel(
+          _this.riverData[index].level.current
+        );
+        entity.billboard.image = _this.warnImages[warnIndex];
+        entity.label.text = `水位: ${_this.riverData[
+          index
+        ].level.current.toFixed(2)}m\n流速: ${_this.riverData[
+          index
+        ].speed.current.toFixed(2)} m³/s`;
+      });
     });
   },
   methods: {
+    ...mapMutations(["updateCurrentWarningLevel"]),
     addWaterLabel() {
       var scene = viewer.scene;
       var _this = this;
@@ -66,10 +90,9 @@ export default {
             .then(dataSources => {
               dataSources.entities.values.forEach(entity => {
                 if (entity.label) {
-                  console.log(entity);
-
                   entity.label.font = "10px sans-serif";
-                  entity.label.text = "水位:10.00m\n流速: 10 m/s";
+                  entity.label.fillColor = Cesium.Color.LIGHTYELLOW;
+                  entity.label.text = "水位:1.35m\n流速: 10 m³/s";
                   entity.billboard.image = this.warnImages[0];
                   entity.billboard.width = 40;
                   _this.waterLevelLabels.push(entity);
@@ -192,14 +215,15 @@ export default {
     }
   },
   computed: {
-    ...mapState(["waterHeight", "riverData"])
+    ...mapState(["waterHeight", "riverData"]),
+    ...mapGetters(["getCurrentWarningLevel"])
   },
   watch: {
     waterHeight() {
       this.waterLevelLabels.forEach(entity => {
         entity.label.text =
           this.waterHeight + "m \n" + (this.waterHeight + 0.02) + "m";
-        entity.label.text = `水位:${this.waterHeight}m \n流速: ${this.waterHeight}m/s`;
+        entity.label.text = `水位:${this.waterHeight}m \n流速: ${this.waterHeight}m³/s`;
       });
       var index = Math.floor(this.waterHeight / 10) - 1; // 10-20, 20
       if (

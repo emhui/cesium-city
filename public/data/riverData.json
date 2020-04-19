@@ -1,53 +1,59 @@
 [
     {
-        "name": "inland-river",
+        "name": "ouland-river",
         "speed": {
             "max": 100,
             "min": 20,
             "current": 20,
-            "range": 3,
-            "step" : 1
+            "range": 1.0,
+            "curstep": 0.1,
+            "step" : 0.1
         },
         "level": {
             "max": 100,
-            "min": 10,
-            "current": 20,
-            "range": 3,
-            "step" : 1
+            "min": 1.35,
+            "current": 1.0,
+            "range": 1,
+            "curstep": 0.1,
+            "step" : 0.1
         }
     },
     {
-        "name": "outland-river",
+        "name": "inland-river",
         "speed": {
             "max": 100,
-            "min": 10,
-            "current": 10,
-            "range": 3,
-            "step" : 1
+            "min": 30,
+            "current": 20,
+            "range": 1,
+            "curstep": 0.1,
+            "step" : 0.1
         },
         "level": {
             "max": 100,
-            "min": 10,
-            "current": 10,
-            "range": 3,
-            "step" : 1
+            "min": 1.34,
+            "current": 1.5,
+            "range": 1.4,
+            "curstep": 0.1,
+            "step" : 0.1
         }
     },
     {
         "name": "canal",
         "speed": {
             "max": 100,
-            "min": 10,
+            "min": 20,
             "current": 15,
             "range": 3,
-            "step" : 1
+            "curstep": 0.1,
+            "step" : 0.1
         },
         "level": {
             "max": 100,
-            "min": 10,
-            "current": 15,
-            "range": 3,
-            "step" : 1
+            "min": 1.23,
+            "current": 1.3,
+            "range": 1.2,
+            "curstep": 0.1,
+            "step" : 0.1
         }
     }
 ]

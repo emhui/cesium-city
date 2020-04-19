@@ -61,9 +61,10 @@ export default {
       switch (key) {
         case "weather":
           Bus.$emit("update-rain", checked);
+          Bus.$emit("show-river-data-pop", checked);
           break;
         case "warning":
-          this.$message.warning("开发中...");
+          // Bus.$emit("show-river-data-pop", checked);
           break;
         case "video":
           Bus.$emit("open-video", checked);
@@ -76,12 +77,37 @@ export default {
           break;
         case "pump":
           Bus.$emit("open-pump", checked);
+          Bus.$emit("move-to-pump", checked);
           break;
         case "gate":
           Bus.$emit("move-to-gate", checked);
           break;
+        case "gate00":
+          Bus.$emit("show-gate-panel", checked, 0);
+          break;
+        case "gate01":
+          Bus.$emit("show-gate-panel", checked, 1);
+          break;
+        case "gate02":
+          Bus.$emit("show-gate-panel", checked, 2);
+          break;
+        case "gate03":
+          Bus.$emit("show-gate-panel", checked, 3);
+          break;
+        case "gate04":
+          Bus.$emit("show-gate-panel", checked, 4);
+          break;
+        case "gate05":
+          Bus.$emit("show-gate-panel", checked, 5);
+          break;
+        case "gate06":
+          Bus.$emit("show-gate-panel", checked, 6);
+          break;
         case "support-gate":
-          this.$message.warning("开发中...");
+          Bus.$emit("move-to-support-gate", checked);
+          break;
+        case "bim":
+          Bus.$emit("show-hide-model", checked);
           break;
         case "terrain":
           viewer.scene.globe.depthTestAgainstTerrain = checked;
@@ -90,13 +116,13 @@ export default {
           this.$message.warning("开发中...");
           break;
         case "yaojiang":
-          this.$message.warning("开发中...");
+          Bus.$emit("show-hide-yuyaojiang", checked)
           break;
         case "cijiang":
           Bus.$emit("show-hide-cijiang", checked)
           break;
         case "canal":
-          this.$message.warning("开发中...");
+          Bus.$emit("show-hide-canal", checked)
           break;
         default:
           break;
@@ -120,7 +146,7 @@ export default {
 <style scoped>
 .tree {
   position: absolute;
-  top: 8em;
+  top: 4em;
   left: 2em;
   min-width: 150px;
   text-align: left;

@@ -17,43 +17,43 @@
           电源电压
           <br />
         </p>
-        <p>A箱: 380V</p>
-        <p>B箱: 380V</p>
-        <p>C箱: 380V</p>
+        <template class="ant-card-actions">
+          A箱: 380V
+          <a-divider type="vertical" />B箱: 380V
+          <a-divider type="vertical" />C箱: 380V
+        </template>
       </template>
       <a-divider type="horizontal" :dashed="true" />
       <template class="ant-card-actions">
-        <p>系统状态: 正常</p>
-        <p>
-          控制模式: 自带
-          <a-divider type="vertical" />
-          <a-switch defaultChecked size="small" />
-        </p>
+        系统状态: 正常
+        <a-divider type="vertical" :dashed="true" />控制模式: 自带
+        <a-divider type="vertical" />
+        <a-switch defaultChecked size="small" />
       </template>
       <a-divider type="horizontal" :dashed="true" />
 
       <template class="ant-card-actions">
         <p>
           1#泵机: 0A
-          <a-divider type="vertical" />电流
+          电流
           <a-divider type="vertical" />
           <a-switch defaultChecked size="small" checkedChildren="开" unCheckedChildren="关" />
         </p>
         <p>
           2#泵机: 0A
-          <a-divider type="vertical" />电流
+          电流
           <a-divider type="vertical" />
           <a-switch defaultChecked size="small" checkedChildren="开" unCheckedChildren="关" />
         </p>
         <p>
           3#泵机: 0A
-          <a-divider type="vertical" />电流
+          电流
           <a-divider type="vertical" />
           <a-switch defaultChecked size="small" checkedChildren="开" unCheckedChildren="关" />
         </p>
         <p>
           4#泵机: 0A
-          <a-divider type="vertical" />电流
+          电流
           <a-divider type="vertical" />
           <a-switch defaultChecked size="small" checkedChildren="开" unCheckedChildren="关" />
         </p>
@@ -61,8 +61,8 @@
       <a-divider type="horizontal" :dashed="true" />
 
       <template class="ant-card-actions">
-        <p>外河水位: 83m</p>
-        <p>内河水位: 27m</p>
+        外河水位: 83m
+        <a-divider type="vertical" :dashed="true" />内河水位: 27m
       </template>
     </a-card>
   </div>
@@ -76,10 +76,13 @@ export default {
     titlex: String,
     id: [String, Number]
   },
-  mounted(){
+  mounted() {
+    var _this = this
     Bus.$on("open-pump", checked => {
-      this.show = checked
-    })
+      _this.show = checked;
+      console.log("泵房",checked);
+      
+    });
   },
   data() {
     return {
@@ -88,13 +91,11 @@ export default {
       show: false,
       toolsDiv: {
         left: "200px",
-        top: "40px",
-        width: "220px"
+        top: "4em",
+        width: "280px"
       },
-      headStyle: { 
-      },
-      bodyStyle: {
-      }
+      headStyle: {},
+      bodyStyle: {}
     };
   },
   computed: {
@@ -147,7 +148,6 @@ export default {
 </script>
 
 <style scoped>
-
 .card {
   position: absolute;
   z-index: 1000;
@@ -155,7 +155,7 @@ export default {
   text-align: left;
 }
 
-p{
+p {
   line-height: 1;
 }
 </style>

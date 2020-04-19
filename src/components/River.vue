@@ -1,5 +1,6 @@
 <template>
   <div id="river-model">
+    <!--     <a-slider id="test" :defaultValue="30" @change="onchange" /> -->
   </div>
 </template>
 
@@ -18,10 +19,11 @@ export default {
       minHeight: 0,
       maxHeight: 5,
       delayHeight: 0.5,
+      yuyaojiang: [],
       rivers: [
         // 存储上流和下流水流区域
         {
-          name: "下游",
+          name: "慈江支流1", // 水渠
           mark: "ID_00002", // 由于不知道河流的具体名称，因此使用mark进行匹配
           entity: null,
           height: 0, // 当前水的高度
@@ -29,15 +31,16 @@ export default {
           interval: null, // 计时事件，记录水面升高和降低
           enableControl: true // 是否控制这条河流的变化
         },
-        /*         {
+        {
+          name: "慈江1", // 内河
           mark: "ID_00003", // 由于不知道河流的具体名称，因此使用mark进行匹配
           entity: null,
           height: 0, // 当前水的高度
           interval: null, // 计时事件，记录水面升高和降低
-          enableControl : false // 是否控制这条河流的变化
-        }, */
+          enableControl: false // 是否控制这条河流的变化
+        },
         {
-          name: "上游",
+          name: "慈江2", // 外河
           mark: "ID_00004", // 由于不知道河流的具体名称，因此使用mark进行匹配
           entity: null,
           height: 0, // 当前水的高度
@@ -45,34 +48,6 @@ export default {
           interval: null, // 计时事件，记录水面升高和降低
           enableControl: true // 是否控制这条河流的变化
         }
-        /*         {
-          mark: "ID_00005", // 由于不知道河流的具体名称，因此使用mark进行匹配
-          entity: null,
-          height: 0, // 当前水的高度
-          interval: null, // 计时事件，记录水面升高和降低
-          enableControl : false // 是否控制这条河流的变化
-        },
-        {
-          mark: "ID_00006", // 由于不知道河流的具体名称，因此使用mark进行匹配
-          entity: null,
-          height: 0, // 当前水的高度
-          interval: null, // 计时事件，记录水面升高和降低
-          enableControl : false // 是否控制这条河流的变化
-        },
-        {
-          mark: "ID_00007", // 由于不知道河流的具体名称，因此使用mark进行匹配
-          entity: null,
-          height: 0, // 当前水的高度
-          interval: null, // 计时事件，记录水面升高和降低
-          enableControl : false // 是否控制这条河流的变化
-        },
-        {
-          mark: "ID_00008", // 由于不知道河流的具体名称，因此使用mark进行匹配
-          entity: null,
-          height: 0, // 当前水的高度
-          interval: null, // 计时事件，记录水面升高和降低
-          enableControl : false // 是否控制这条河流的变化
-        } */
       ],
       waterImage: require("../assets/water.jpg")
     };
@@ -80,24 +55,39 @@ export default {
   mounted() {
     this.addRiver();
 
+    var _this = this;
     // 监听上升下降事件
     Bus.$on("update-river-height", (index, height) => {
-      this.updateHeight(this.rivers[index].entity, height);
+      console.log(_this.rivers);
+
+      _this.updateHeight(_this.rivers[index].entity, height);
     });
     Bus.$on("rise-river", (checked, index) => {
       if (checked) {
-        this.up(index);
+        _this.up(index);
       } else {
-        this.down(index);
+        _this.down(index);
       }
     });
     Bus.$on("show-hide-cijiang", checked => {
-      this.rivers.forEach(el => {
-        el.entity.show = checked
-      })
-    })
+      _this.rivers[1].entity.show = checked;
+      _this.rivers[2].entity.show = checked;
+    });
+    Bus.$on("show-hide-canal", checked => {
+      _this.rivers[0].entity.show = checked;
+    });
+    Bus.$on("show-hide-yuyaojiang", checked => {
+      _this.yuyaojiang.forEach(el => {
+        el.show = checked;
+      });
+    });
   },
   methods: {
+    onchange(value) {
+      console.log(value);
+
+      this.updateHeight(this.rivers[0].entity, value);
+    },
     addRiver() {
       viewer = this.$store.state.viewer;
       var scene = viewer.scene;
@@ -124,7 +114,7 @@ export default {
       this.data.forEach(element => {
         if (element.type === "river") {
           this.addPrimitiveRiver(element.url, kmlOptions, River_Material);
-/*           viewer.dataSources.add(
+          /*           viewer.dataSources.add(
             Cesium.KmlDataSource.load(element.url, kmlOptions)
           ); */
         }
@@ -140,19 +130,31 @@ export default {
         // 加载成功后，开始渲染水面
         dataSource.entities.values.forEach(entity => {
           if (entity.polygon) {
+            console.log(entity);
+
             var polygonHierarchy = entity.polygon.hierarchy;
             var positions = entity.polygon.hierarchy._value.positions;
 
             var polygon = new Cesium.PolygonGeometry({
               polygonHierarchy: new Cesium.PolygonHierarchy(positions),
               /*               extrudedHeight: 10, */
-/*               height: 0, */
+              /*               height: 0, */
               height: 0,
               vertexFormat: Cesium.EllipsoidSurfaceAppearance.VERTEX_FORMAT
               //  heightReference : Cesium.HeightReference.RELATIVE_TO_GROUND,
             });
 
-            var River = new Cesium.GroundPrimitive({
+            var River = new Cesium.Primitive({
+              geometryInstances: new Cesium.GeometryInstance({
+                geometry: polygon
+              }),
+              appearance: new Cesium.EllipsoidSurfaceAppearance({
+                aboveGround: true,
+                flat: true
+              }),
+              show: true
+            });
+            var River2 = new Cesium.GroundPrimitive({
               geometryInstances: new Cesium.GeometryInstance({
                 geometry: polygon
               }),
@@ -164,12 +166,16 @@ export default {
             });
 
             River.appearance.material = material;
+            River2.appearance.material = material;
             // River1.modelMatrix = Cesium.Matrix4.fromTranslation(Cesium.Cartesian3.fromArray([0,0,10])) 可以，但是效果不是特别好. 最终还是选择平移矩阵
 
             viewer.scene.primitives.add(River);
-
+            // viewer.scene.primitives.add(River2);
+            if (entity.name.startsWith("余姚江")) {
+              _this.yuyaojiang.push(River);
+            }
             _this.rivers.forEach(river => {
-              if (entity.id.startsWith(river.mark)) {
+              if (entity.name === river.name) {
                 river.entity = River;
                 _this.setRivers(_this.rivers);
               }
@@ -220,6 +226,10 @@ export default {
       var cartographic = Cesium.Cartographic.fromCartesian(
         tileset._boundingSpheres[0].center
       );
+      // GroundPrimitive 的_boundingSpheres为空，_boundingVolumes有值
+      /*       var cartographic = Cesium.Cartographic.fromCartesian(
+        tileset._boundingVolumes[0].center
+      ); */
       var surface = Cesium.Cartesian3.fromRadians(
         cartographic.longitude,
         cartographic.latitude,

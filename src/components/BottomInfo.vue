@@ -2,10 +2,10 @@
   <div id="bottom-info-box">
     <span class="info__item info__lon">纬度:{{showLongitude}}</span>
     <span class="info__item info__lat">经度:{{showLatitude}}</span>
-<!--     <span class="info__item info__elevation">海拔:{{elevation}}</span>
-    <span class="info__item info__height">高度:{{height}}</span>
-    <span class="info__item info__heading">方向:{{heading}}</span>
-    <span class="info__item info__pitch">俯视角:{{pitch}}</span> -->
+    <span class="info__item info__elevation">海拔:{{showElevation}}</span>
+    <!--     <span class="info__item info__height">高度:{{showCameraHeight}}</span> -->
+    <span class="info__item info__heading">方向:{{showHeading}}</span>
+    <span class="info__item info__pitch">俯视角:{{showPitch}}</span>
   </div>
 </template>
 
@@ -14,7 +14,7 @@ import { mapState, mapMutations, mapGetters } from "vuex";
 
 export default {
   mounted() {
-/*           var pickedObject = scene.pick(movement.endPosition);
+    /*           var pickedObject = scene.pick(movement.endPosition);
           var cartesian = viewer.scene.pickPosition(movement.endPosition);
 
           var cartographic = Cesium.Cartographic.fromCartesian(cartesian);
@@ -31,7 +31,14 @@ export default {
  */
   },
   computed: {
-    ...mapGetters(['showLongitude', 'showLatitude'])
+    ...mapGetters([
+      "showLongitude",
+      "showLatitude",
+      "showElevation",
+      "showCameraHeight",
+      "showHeading",
+      "showPitch"
+    ])
   }
 };
 </script>
@@ -48,7 +55,6 @@ export default {
   z-index: 1000;
   color: white;
   text-align: right;
-  /*   display: flex; */
   justify-content: flex-end;
 }
 
@@ -56,7 +62,7 @@ export default {
   &__item {
     padding: 0 2em;
     font-weight: 700;
-    font-size: 1.4em;
+    font-size: 1em;
     letter-spacing: 2px;
   }
 }

@@ -52,7 +52,7 @@ export default {
       showCard: false,
       toolsDiv: {
         left: "200px",
-        top: "40px",
+        top: "4em",
         width: "220px"
       },
       videoStatus: 0, // 视频状态，0 是暂停 1 是播放
@@ -77,11 +77,10 @@ export default {
           .add(Cesium.KmlDataSource.load(element.url, kmlOptions))
           .then(dataSources => {
             dataSources.entities.values.forEach(entity => {
-              console.log(entity);
               entity.show = false
               if (entity.name === "video-point") {
                 var position = entity.position;
-                var heading = Cesium.Math.toRadians(30);
+                var heading = Cesium.Math.toRadians(14);
                 var pitch = 0;
                 var roll = 0;
                 var hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
@@ -89,28 +88,21 @@ export default {
                   position._value,
                   hpr
                 );
-                console.log(orientation);
 
                 this.videoEntity = viewer.entities.add({
                   name: "Red box with black outline",
                   position: position,
                   show: false,
                   box: {
-                    dimensions: new Cesium.Cartesian3(160.0, 1.0, 90.0),
+                    dimensions: new Cesium.Cartesian3(30.0, 1.0, 16.0),
                     material: _this.$refs.video,
                     outline: true,
                     outlineColor: Cesium.Color.BLACK,
                     heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
                   },
                   orientation: orientation
-                }); 
+                });
               }
-              /*               entity.polygon.extrudedHeight = 10
-              this.videoEntity = entity;
-              this.videoEntity.show = false;
-              entity.polygon && (entity.polygon.material = _this.$refs.video);
-              entity.polygon.material.repeat = new Cartesian2(8.0, 8.0)
-              this.pause() */
             });
           });
       } else if (element.type === "video-url") {
@@ -135,9 +127,9 @@ export default {
         this.showCard = true;
         viewer.flyTo(this.videoEntity, {
           offset: {
-            heading: Cesium.Math.toRadians(28.0),
+            heading: Cesium.Math.toRadians(16.0),
             pitch: Cesium.Math.toRadians(-1),
-            range: 300
+            range: 100
           }
         });
       } else {

@@ -15,6 +15,7 @@
       <update-data></update-data>
       <pump></pump>
       <!--       <photography :data="data"></photography> -->
+      <river-data-pop></river-data-pop>
     </div>
   </div>
 </template>
@@ -77,7 +78,8 @@ export default {
       // 重写homebuttom事件
       this.setHomeButton();
       // viewer.extend(Cesium.viewerCesiumInspectorMixin);
-      this.$store.state.viewer = viewer;
+      this.setViewer(viewer);
+      // this.$store.state.viewer = viewer;
       // 关闭这个防止水和BIM模型被遮挡
       viewer.scene.globe.depthTestAgainstTerrain = true;
     },
@@ -118,7 +120,6 @@ export default {
       viewer.scene.camera.setView(homeCameraView);
     },
     addTerrain() {
-      console.log(this.data);
       var terrainProvider;
       this.data.forEach(element => {
         if (element.type === "terrain") {
@@ -132,7 +133,8 @@ export default {
     addImage() {
       // 将默认影像（必应）更换为Google影像
       var google = new Cesium.UrlTemplateImageryProvider({
-        url: "http://mt0.google.cn/vt/lyrs=s&hl=zh-CN&x={x}&y={y}&z={z}",
+        // url: "http://mt0.google.cn/vt/lyrs=s&hl=zh-CN&x={x}&y={y}&z={z}",
+        url: "http://webst02.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scale=1&style=8",
         tilingScheme: new Cesium.WebMercatorTilingScheme(),
         maximumLevel: 20
       });
@@ -190,7 +192,8 @@ export default {
     TreeComponent: () => import("../components/Tree"),
     UpdateData: () => import("../components/UpdateData"), // 每秒更新一次数据
     /*     Photography: () => import("../components/Photography") */
-    Pump: () => import("../components/Pump")
+    Pump: () => import("../components/Pump"),
+    RiverDataPop: () => import("../components/RiverDataPop") // 河流水位的弹窗
   }
 };
 </script>
