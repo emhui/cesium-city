@@ -5,6 +5,67 @@ import axios from "axios"
 var Cesium = require("cesium/Cesium");
 Vue.use(Vuex);
 
+const data =
+  [
+    {
+      "name": "ouland-river",
+      "speed": {
+        "max": 100,
+        "min": 20,
+        "current": 20,
+        "range": 0.1,
+        "curstep": 0.1,
+        "step": 0.1
+      },
+      "level": {
+        "max": 100,
+        "min": 1.35,
+        "current": 1.0,
+        "range": 0.1,
+        "curstep": 0.1,
+        "step": 0.1
+      }
+    },
+    {
+      "name": "inland-river",
+      "speed": {
+        "max": 100,
+        "min": 30,
+        "current": 20,
+        "range": 0.1,
+        "curstep": 0.1,
+        "step": 0.1
+      },
+      "level": {
+        "max": 100,
+        "min": 1.34,
+        "current": 1.5,
+        "range": 0.1,
+        "curstep": 0.1,
+        "step": 0.1
+      }
+    },
+    {
+      "name": "canal",
+      "speed": {
+        "max": 100,
+        "min": 20,
+        "current": 15,
+        "range": 0.1,
+        "curstep": 0.1,
+        "step": 0.1
+      },
+      "level": {
+        "max": 100,
+        "min": 1.23,
+        "current": 1.3,
+        "range": 0.1,
+        "curstep": 0.1,
+        "step": 0.1
+      }
+    }
+  ]
+
 export default new Vuex.Store({
   state: {
     viewer: null,
@@ -13,9 +74,12 @@ export default new Vuex.Store({
     valves: [], // 存储阀门数据
     rivers: [], // 存储河流数据
     selectedEntity: null, // 当前被选中的实体
-    riverData: [], // 河流水位水速数据
+    // riverData: [], // 河流水位水速数据
+    riverData: data, // 河流水位水速数据
     warningLevel: [0, 3, 5, 7, 10, 100],// 预警等级
-    currentWarningLevel: 0 // 当前预警等级
+    currentWarningLevel: 0, // 当前预警等级
+    isAI: false, // 当前是否是智能模式
+    isRain: false, // 当前是否在下雨
   },
   mutations: {
     setViewer(state, viewer) {
@@ -28,16 +92,26 @@ export default new Vuex.Store({
     addWaterHeight(state) {
       // state.waterHeight += 1
       state.riverData.forEach(el => {
-        el.speed.current += el.speed.curstep
-        el.level.current += el.level.curstep
+        el.speed.min += el.speed.curstep
+        el.level.min += el.level.curstep
+        el.speed.current = el.speed.speed
+        el.level.current = el.level.min
       })
     },
     // 降低水位
     downWaterHeight(state) {
       // state.waterHeight += 1
       state.riverData.forEach(el => {
-        el.speed.current -= 0.01
-        el.level.current -= 0.01
+        el.speed.min -= 0.01
+        el.level.min -= 0.01
+      })
+    },
+    // 降低给定值的水位
+    downWaterHeightByNum(state, num) {
+      // state.waterHeight += 1
+      state.riverData.forEach(el => {
+        el.speed.min -= num
+        el.level.min -= num
       })
     },
     // 更新河流高度，流速的步长
@@ -97,6 +171,14 @@ export default new Vuex.Store({
     updateCurrentWarningLevel(state, num) {
       state.currentWarningLevel
         = state.warningLevel.findIndex(el => el > num) - 1
+    },
+    // 是否将当前状态设置为智能预警模式
+    updateAIStatus(state, checked){
+      state.isAI = checked
+    },
+    // 更新下雨状态
+    updateRainStatus(state, checked){
+      state.isRain = checked
     }
   },
   getters: {
@@ -149,13 +231,14 @@ export default new Vuex.Store({
     // 获取当前预警等级,num为当前降水量
     getCurrentWarningLevel: (state) => (num) => {
       return state.warningLevel.findIndex(el => el > num) - 1
-    }
+    },
   },
   actions: {
     getRiverData(context) {
       console.log("下载");
 
-      axios.get("data/riverData.json").then(response => {
+      axios.get("./data/riverData.json").then(response => {
+        console.log(response.data);
 
         context.commit("initRiverData", response.data)
       });

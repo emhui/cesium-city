@@ -13,7 +13,7 @@
       <p>实际闸高： {{ showHeight }}m</p>
       <p>外河水位： {{ showOutlandWaterLevel}}m</p>
       <p>闸门状态： {{showStatus}}</p>
-      <p>控制模式： 自动</p>
+      <p>控制模式： {{ showControlMode}}</p>
       <template class="ant-card-actions" slot="actions">
         <a-button @click="openGate">提升</a-button>
         <a-button @click="closeGate">降落</a-button>
@@ -120,27 +120,36 @@ export default {
     });
 
     Bus.$on("show-hide-model", checked => {
-      this.bims.forEach(bim => {
+      _this.bims.forEach(bim => {
         bim.show = checked;
       });
+    });
+    Bus.$on("show-hide-shuizhan", checked => {
+      _this.bims[0].show = checked;
+    });
+    Bus.$on("show-hide-bengfang", checked => {
+      _this.bims[1].show = checked;
+    });
+    Bus.$on("show-hide-zhiyuanfa", checked => {
+      _this.bim[2].show = checked;
     });
 
     Bus.$on("auto-open-gate", index => {
       index--;
       try {
-        if (this.valveList[index].status === -1 && index !== -1) {
-          this.$message.warning(
+        if (_this.valveList[index].status === -1 && index !== -1) {
+          _this.$message.warning(
             `达到${index + 1}预警,正在开启${index + 1}号闸门`
           );
-          this.autoOpenGate(index);
-          this.setValvesStatus({ index: index, checked: true });
+          _this.autoOpenGate(index);
+          _this.setValvesStatus({ index: index, checked: true });
         }
       } catch (error) {}
     });
     // 由目录树打开闸门的控制面板
     Bus.$on("show-gate-panel", (checked, index) => {
-      this.show = checked;
-      checked && (this.selectedIndex = index);
+      _this.show = checked;
+      checked && (_this.selectedIndex = index);
     });
   },
   methods: {
@@ -202,7 +211,7 @@ export default {
             .add(Cesium.KmlDataSource.load(element.url, kmlOptions))
             .then(dataSources => {
               dataSources.entities.values.forEach(entity => {
-                console.log(entity);
+                // console.log(entity);
                 if (entity.polygon) {
                   // entity.polygon.heightReference =
                   // Cesium.HeightReference.CLAMP_TO_GROUND;
@@ -249,11 +258,14 @@ export default {
           }
         })
         .then(() => {
-          _this.openZM(index)
+          _this.openZM(index);
           // 改变步长，根据当前打开闸门的数量，让下雨时候的河流增速变慢
           _this.updataRiverStep(_this.computeOpenNum());
+          this.downWaterHeightByNum(0.5);
           setTimeout(() => {
-            Bus.$emit("show-rain");
+            if (_this.isRain) {
+              Bus.$emit("show-rain");
+            }
           }, 5000);
         });
     },
@@ -268,7 +280,6 @@ export default {
       }, false);
       valve.entity.polygon.height = property;
       valve.status = 1;
-      this.AI(index);
     },
     AI(index) {
       var _this = this;
@@ -322,6 +333,7 @@ export default {
         }
         // 发送到
         Bus.$emit("update-river-data");
+        // 打开闸门降低水面
         this.downWaterHeight();
         return valve.currentHeight;
       }, false);
@@ -390,11 +402,12 @@ export default {
       "addValves",
       "setValvesStatus",
       "updataRiverStep",
-      "downWaterHeight"
+      "downWaterHeight",
+      "downWaterHeightByNum"
     ])
   },
   computed: {
-    ...mapState(["waterHeight", "valves"]),
+    ...mapState(["waterHeight", "valves", "isRain", "isAI"]),
     ...mapGetters(["showOutlandWaterLevel"]),
     showHeight() {
       try {
@@ -416,6 +429,9 @@ export default {
       } catch (error) {
         return "关闭";
       }
+    },
+    showControlMode(){
+      return this.isAI ? "自动" : "手动"
     }
   },
   /*   filters: {

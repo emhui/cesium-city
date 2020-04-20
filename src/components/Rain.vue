@@ -49,15 +49,18 @@ export default {
       }
     },
     startRainInterval() {
+      // 清楚 UpdateData.vue中的下雨事件
+      Bus.$emit("clear-update-data-in-normal");
       this.rainInterval = setInterval(() => {
         this.addWaterHeight();
-        Bus.$emit("update-river-data")
+        Bus.$emit("update-river-data");
         // Bus.$emit("water-height-up");
       }, 1000);
     },
     clearRainInterval() {
       clearInterval(this.rainInterval);
       this.rainInterval = null;
+      Bus.$emit("start-update-data-in-normal");
     },
     initPartileSystem() {
       viewer = this.$store.state.viewer;

@@ -130,7 +130,7 @@ export default {
         // 加载成功后，开始渲染水面
         dataSource.entities.values.forEach(entity => {
           if (entity.polygon) {
-            console.log(entity);
+            // console.log(entity);
 
             var polygonHierarchy = entity.polygon.hierarchy;
             var positions = entity.polygon.hierarchy._value.positions;
@@ -191,6 +191,7 @@ export default {
         this.rivers[index].entity.show = false;
       }
     },
+    // 停止下雨时候更新数据，打开平时更新数据事件
     clearRiverInterval(river) {
       clearInterval(river.interval);
       river.interval = null;
@@ -223,29 +224,33 @@ export default {
       }, 80);
     },
     updateHeight(tileset, height) {
-      var cartographic = Cesium.Cartographic.fromCartesian(
-        tileset._boundingSpheres[0].center
-      );
-      // GroundPrimitive 的_boundingSpheres为空，_boundingVolumes有值
-      /*       var cartographic = Cesium.Cartographic.fromCartesian(
+      try {
+        var cartographic = Cesium.Cartographic.fromCartesian(
+          tileset._boundingSpheres[0].center
+        );
+        // GroundPrimitive 的_boundingSpheres为空，_boundingVolumes有值
+        /*       var cartographic = Cesium.Cartographic.fromCartesian(
         tileset._boundingVolumes[0].center
       ); */
-      var surface = Cesium.Cartesian3.fromRadians(
-        cartographic.longitude,
-        cartographic.latitude,
-        0.0
-      );
-      var offset = Cesium.Cartesian3.fromRadians(
-        cartographic.longitude,
-        cartographic.latitude,
-        height
-      );
-      var translation = Cesium.Cartesian3.subtract(
-        offset,
-        surface,
-        new Cesium.Cartesian3()
-      );
-      tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation);
+        var surface = Cesium.Cartesian3.fromRadians(
+          cartographic.longitude,
+          cartographic.latitude,
+          0.0
+        );
+        var offset = Cesium.Cartesian3.fromRadians(
+          cartographic.longitude,
+          cartographic.latitude,
+          height
+        );
+        var translation = Cesium.Cartesian3.subtract(
+          offset,
+          surface,
+          new Cesium.Cartesian3()
+        );
+        tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation);
+      } catch (error) {
+        console.log("模型暂时没有加载");
+      }
     },
     ...mapMutations(["addRivers", "setRivers", "updateRiversHeight"])
   },

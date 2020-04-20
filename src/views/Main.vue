@@ -1,7 +1,7 @@
 <template>
   <div id="cesiumContainer">
     <div v-if="loaded">
-      <bottom-info></bottom-info>
+      <!--       <bottom-info></bottom-info> -->
       <river-model :data="data"></river-model>
       <bim-model :data="data"></bim-model>
       <rain-model :data="data"></rain-model>
@@ -45,7 +45,7 @@ export default {
   },
   created() {
     // 加载河流数据
-    this.$store.dispatch("getRiverData");
+    // this.$store.dispatch("getRiverData");
   },
   mounted() {
     var _this = this;
@@ -73,7 +73,7 @@ export default {
       });
       this.loaded = true;
       viewer.terrainProvider = this.addTerrain();
-      this.addImage();
+      this.addImage(); // 添加影像
       this.setInitPosistion();
       // 重写homebuttom事件
       this.setHomeButton();
@@ -132,39 +132,24 @@ export default {
     },
     addImage() {
       // 将默认影像（必应）更换为Google影像
-      var google = new Cesium.UrlTemplateImageryProvider({
-        // url: "http://mt0.google.cn/vt/lyrs=s&hl=zh-CN&x={x}&y={y}&z={z}",
-        url: "http://webst02.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scale=1&style=8",
-        tilingScheme: new Cesium.WebMercatorTilingScheme(),
-        maximumLevel: 20
-      });
-      viewer.imageryLayers.addImageryProvider(google);
-
-      /*       //高德二维地图自带路网注记
-      var vec = new Cesium.UrlTemplateImageryProvider({
-        url:
-          "http://webrd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}",
-        minimumLevel: 3,
-        maximumLevel: 18
-      });
-      viewer.imageryLayers.addImageryProvider(vec); */
-
-      //高德影像
-      /*       var gdsat = new Cesium.UrlTemplateImageryProvider({
-        url:
-          "https://webst02.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}",
-        minimumLevel: 3,
-        maximumLevel: 18
-      });
-      //高德路网中文注记
-      var gdroadNoLabel = new Cesium.UrlTemplateImageryProvider({
-        url:
-          "http://webst02.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scale=1&style=8",
-        minimumLevel: 3,
-        maximumLevel: 18
-      });
-      viewer.imageryLayers.addImageryProvider(gdsat);
-      viewer.imageryLayers.addImageryProvider(gdroadNoLabel); */
+      /*       var google = new Cesium.UrlTemplateImageryProvider({
+         url: "http://webrd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}"
+      }); */
+      //viewer.imageryLayers.addImageryProvider(google);
+      viewer.imageryLayers.addImageryProvider(
+        new Cesium.WebMapTileServiceImageryProvider({
+          url:
+            "http://t0.tianditu.com/img_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=e378319b5250eff0fdd562f3aa190e62",
+          layer: "img",
+          style: "default",
+          format: "tiles",
+          tileMatrixSetID: "w",
+          credit: new Cesium.Credit("天地图全球影像服务"),
+          subdomains: ["t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7"],
+          maximumLevel: 18,
+          show: true
+        })
+      );
     },
     // 重新homebutton事件
     setHomeButton() {
@@ -205,7 +190,8 @@ export default {
   overflow: hidden;
 }
 .cesium-widget-credits,
-.cesium-fullscreenButton {
+.cesium-fullscreenButton,
+.cesium-home-button {
   display: none !important;
 }
 </style>

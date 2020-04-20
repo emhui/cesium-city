@@ -42,34 +42,36 @@ export default {
     Bus.$on("update-river-data", () => {
       // 处理预警
 
-      Bus.$emit(
-        "auto-open-gate",
-        _this.getCurrentWarningLevel(_this.riverData[1].level.current)
-      );
+      // 处于智能预警状态则会自动开关门
+      if (_this.isAI) {
+        Bus.$emit(
+          "auto-open-gate",
+          _this.getCurrentWarningLevel(_this.riverData[1].level.current)
+        );
+      }
 
       // 更新标签
       _this.waterLevelLabels.forEach((entity, index, arrays) => {
-/*         console.log(
+        /*         console.log(
           `${entity.name}当前预警等级是${_this.getCurrentWarningLevel(
             _this.riverData[index].level.current
           )}`
         ); */
         // 实时更新内外河和水渠的水位
+        var data = _this.riverData[index];
         Bus.$emit(
           "update-river-height",
           index,
-          parseFloat(_this.riverData[index].level.current.toFixed(2)) / 3
+          parseFloat(data.level.current.toFixed(2)) / 3
         );
         // 获取各个河流的预警等级
         var warnIndex = _this.getCurrentWarningLevel(
-          _this.riverData[index].level.current
+          parseFloat(data.level.current)
         );
         entity.billboard.image = _this.warnImages[warnIndex];
-        entity.label.text = `水位: ${_this.riverData[
-          index
-        ].level.current.toFixed(2)}m\n流速: ${_this.riverData[
-          index
-        ].speed.current.toFixed(2)} m³/s`;
+        entity.label.text = `水位: ${parseFloat(data.level.current).toFixed(
+          2
+        )}m\n流速: ${parseFloat(data.speed.current).toFixed(2)} m³/s`;
       });
     });
   },
@@ -215,7 +217,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(["waterHeight", "riverData"]),
+    ...mapState(["waterHeight", "riverData", "isAI"]),
     ...mapGetters(["getCurrentWarningLevel"])
   },
   watch: {

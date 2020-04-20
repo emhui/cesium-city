@@ -44,6 +44,7 @@ export default {
     });
   },
   methods: {
+    ...mapMutations(["updateAIStatus", "updateRainStatus"]),
     onExpand(expandedKeys) {
       // console.log("onExpand", expandedKeys);
       // if not set autoExpandParent to false, if children expanded, parent can not collapse.
@@ -62,9 +63,10 @@ export default {
         case "weather":
           Bus.$emit("update-rain", checked);
           Bus.$emit("show-river-data-pop", checked);
+          this.updateRainStatus(checked)
           break;
         case "warning":
-          // Bus.$emit("show-river-data-pop", checked);
+          this.updateAIStatus(checked)
           break;
         case "video":
           Bus.$emit("open-video", checked);
@@ -108,6 +110,15 @@ export default {
           break;
         case "bim":
           Bus.$emit("show-hide-model", checked);
+          break;
+        case "shuizhan":
+          Bus.$emit("show-hide-shuizhan", checked)
+          break;
+        case "bengfang":
+          Bus.$emit("show-hide-bengfang", checked)
+          break;
+        case "zhiyuanfa":
+          Bus.$emit("show-hide-zhiyuanfa", checked)
           break;
         case "terrain":
           viewer.scene.globe.depthTestAgainstTerrain = checked;

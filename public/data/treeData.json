@@ -14,7 +14,7 @@
         "title": "智能预警",
         "key": "0-0-1",
         "value": "warning",
-        "checked": true
+        "checked": false
       },
       {
         "title": "实时视频",
@@ -122,7 +122,27 @@
         "title": "BIM模型",
         "key": "0-2-0",
         "value": "bim",
-        "checked": true
+        "checked": true,
+        "children": [
+          {
+            "title": "水站",
+            "key": "0-2-0-0",
+            "value": "shuizhan",
+            "checked": true
+          },
+          {
+            "title": "泵房",
+            "key": "0-2-0-1",
+            "value": "bengfang",
+            "checked": true
+          },
+          {
+            "title": "支援阀",
+            "key": "0-2-0-2",
+            "value": "zhiyuanfa",
+            "checked": true
+          }
+        ]
       },
       {
         "title": "倾斜摄影",
