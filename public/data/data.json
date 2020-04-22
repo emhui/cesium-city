@@ -24,14 +24,14 @@
         "id": "2",
         "name": "宁波-地形",
         "type": "terrain",
-        "url": "http://127.0.0.1:9090/public/terrain3/",
+        "url": "http://127.0.0.1:9090/public/terrain4/",
         "desc": "地形数据的url链接是地形的根目录"
     },
     {
         "id": "3",
         "name": "宁波-河流",
         "type": "river",
-        "url": "http://127.0.0.1:9090/public/river/ningbo_river_final3.kmz",
+        "url": "http://127.0.0.1:9090/public/river/ningbo_river_final6.kmz",
         "desc": "河流引用的是kml数据"
     },
     {
@@ -73,7 +73,7 @@
         "id": "9",
         "name": "倾斜摄影数据",
         "type": "photography",
-        "url": "http://127.0.0.1:9090/public/photography/tileset.json",
+        "url": "http://127.0.0.1:9090/public/nbcj/osgb/tileset.json",
         "desc": ""
     }
 ]

@@ -49,6 +49,7 @@ export default {
   data() {
     return {
       videoEntity: null, //
+      videoEntity2: null, //
       showCard: false,
       toolsDiv: {
         left: "200px",
@@ -77,7 +78,7 @@ export default {
           .add(Cesium.KmlDataSource.load(element.url, kmlOptions))
           .then(dataSources => {
             dataSources.entities.values.forEach(entity => {
-              entity.show = false
+              entity.show = false;
               if (entity.name === "video-point") {
                 var position = entity.position;
                 var heading = Cesium.Math.toRadians(14);
@@ -102,6 +103,30 @@ export default {
                   },
                   orientation: orientation
                 });
+              } else if (entity.name === "video-point2") {
+                var position = entity.position;
+                var heading = Cesium.Math.toRadians(290);
+                var pitch = 0;
+                var roll = 0;
+                var hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
+                var orientation = Cesium.Transforms.headingPitchRollQuaternion(
+                  position._value,
+                  hpr
+                );
+
+                this.videoEntity2 = viewer.entities.add({
+                  name: "Red box with black outline",
+                  position: position,
+                  show: false,
+                  box: {
+                    dimensions: new Cesium.Cartesian3(100.0, 1.0, 46.0),
+                    material: _this.$refs.video,
+                    outline: true,
+                    outlineColor: Cesium.Color.BLACK,
+                    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+                  },
+                  orientation: orientation
+                });
               }
             });
           });
@@ -112,6 +137,14 @@ export default {
 
     Bus.$on("play-video", () => {
       this.play();
+    });
+    Bus.$on("play-video-2", () => {
+      this.videoEntity2.show = true
+      this.play();
+    });
+    Bus.$on("pause-video-2", () => {
+      this.videoEntity2.show = false
+      this.pause();
     });
     Bus.$on("pause-video", () => {
       this.pause();

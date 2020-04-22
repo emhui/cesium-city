@@ -26,10 +26,11 @@
           </a-col>
         </a-row>
       </template>
-      <p v-show="getCurrentWarningLevel(showInlandWaterLevel)">
+      <div v-show="getCurrentWarningLevel(showInlandWaterLevel)">
         <a-divider type="horizontal" />
-        当前预警等级: {{getCurrentWarningLevel(showInlandWaterLevel)}}
-      </p>
+        <p class="warning">汛期：未来三天强降雨期</p>
+           <p>预警：{{getCurrentWarningLevel(showInlandWaterLevel)}}级</p>
+      </div>
     </a-card>
   </div>
 </template>

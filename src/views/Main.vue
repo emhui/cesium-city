@@ -1,7 +1,7 @@
 <template>
   <div id="cesiumContainer">
     <div v-if="loaded">
-      <!--       <bottom-info></bottom-info> -->
+      <bottom-info></bottom-info>
       <river-model :data="data"></river-model>
       <bim-model :data="data"></bim-model>
       <rain-model :data="data"></rain-model>
@@ -14,7 +14,7 @@
       <tree-component></tree-component>
       <update-data></update-data>
       <pump></pump>
-      <!--       <photography :data="data"></photography> -->
+      <photography :data="data"></photography>
       <river-data-pop></river-data-pop>
     </div>
   </div>
@@ -131,25 +131,12 @@ export default {
       return terrainProvider;
     },
     addImage() {
-      // 将默认影像（必应）更换为Google影像
-      /*       var google = new Cesium.UrlTemplateImageryProvider({
-         url: "http://webrd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}"
-      }); */
-      //viewer.imageryLayers.addImageryProvider(google);
-      viewer.imageryLayers.addImageryProvider(
-        new Cesium.WebMapTileServiceImageryProvider({
-          url:
-            "http://t0.tianditu.com/img_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=e378319b5250eff0fdd562f3aa190e62",
-          layer: "img",
-          style: "default",
-          format: "tiles",
-          tileMatrixSetID: "w",
-          credit: new Cesium.Credit("天地图全球影像服务"),
-          subdomains: ["t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7"],
-          maximumLevel: 18,
-          show: true
-        })
-      );
+      var google = new Cesium.UrlTemplateImageryProvider({
+        url: "http://mt0.google.cn/vt/lyrs=s&hl=zh-CN&x={x}&y={y}&z={z}",
+        tilingScheme: new Cesium.WebMercatorTilingScheme(),
+        maximumLevel: 20
+      });
+      viewer.imageryLayers.addImageryProvider(google);
     },
     // 重新homebutton事件
     setHomeButton() {
@@ -176,7 +163,7 @@ export default {
     VideoModel: () => import("../components/Video"),
     TreeComponent: () => import("../components/Tree"),
     UpdateData: () => import("../components/UpdateData"), // 每秒更新一次数据
-    /*     Photography: () => import("../components/Photography") */
+    Photography: () => import("../components/Photography"),
     Pump: () => import("../components/Pump"),
     RiverDataPop: () => import("../components/RiverDataPop") // 河流水位的弹窗
   }

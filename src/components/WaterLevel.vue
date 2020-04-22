@@ -15,6 +15,7 @@ export default {
     return {
       submergedArea: null, // 淹没地区实体
       waterLevelLabels: [], // 存储水位标签实体
+      othersRiver: [], // 储存其他不相关的标签
       waterImage: require("../assets/water.jpg"), // 河流表面的流动照片
       // 预警图片
       warnImages: [
@@ -39,6 +40,16 @@ export default {
     viewer = this.$store.state.viewer;
     this.addWaterLabel();
     var _this = this;
+    Bus.$on("hide-others-river", () => {
+      _this.othersRiver.forEach(river=>{
+        river.show = false
+      })
+    })
+    Bus.$on("show-others-river", () => {
+      _this.othersRiver.forEach(river=>{
+        river.show = true
+      })
+    })
     Bus.$on("update-river-data", () => {
       // 处理预警
 
@@ -52,19 +63,28 @@ export default {
 
       // 更新标签
       _this.waterLevelLabels.forEach((entity, index, arrays) => {
-        /*         console.log(
-          `${entity.name}当前预警等级是${_this.getCurrentWarningLevel(
-            _this.riverData[index].level.current
-          )}`
-        ); */
         // 实时更新内外河和水渠的水位
         var data = _this.riverData[index];
         Bus.$emit(
           "update-river-height",
           index,
-          parseFloat(data.level.current.toFixed(2)) / 3
+          parseFloat(data.level.current.toFixed(2)) / 4
         );
         // 获取各个河流的预警等级
+        var warnIndex = _this.getCurrentWarningLevel(
+          parseFloat(data.level.current)
+        );
+        entity.billboard.image = _this.warnImages[warnIndex];
+        entity.label.text = `水位: ${parseFloat(data.level.current).toFixed(
+          2
+        )}m\n流速: ${parseFloat(data.speed.current).toFixed(2)} m³/s`;
+      });
+
+      // 更新其他不相关河流的水位信息
+      _this.othersRiver.forEach((entity, index, arrays) => {
+        // 实时更新内外河和水渠的水位
+        // 获取各个河流的预警等级
+        var data = _this.riverData[index];
         var warnIndex = _this.getCurrentWarningLevel(
           parseFloat(data.level.current)
         );
@@ -95,9 +115,21 @@ export default {
                   entity.label.font = "10px sans-serif";
                   entity.label.fillColor = Cesium.Color.LIGHTYELLOW;
                   entity.label.text = "水位:1.35m\n流速: 10 m³/s";
+                  entity.label.disableDepthTestDistance = Number.POSITIVE_INFINITY
+                  entity.billboard.disableDepthTestDistance = Number.POSITIVE_INFINITY
+/*                   entity.label.heightReference = */
+/*                     Cesium.HeightReference.CLAMP_TO_GROUND;
+                  entity.billboard.heightReference =
+                    Cesium.HeightReference.CLAMP_TO_GROUND; */
                   entity.billboard.image = this.warnImages[0];
                   entity.billboard.width = 40;
-                  _this.waterLevelLabels.push(entity);
+                  // 存储非主要河流
+                  if (entity.name.startsWith("other")) {
+                    entity.show = false
+                    _this.othersRiver.push(entity);
+                  } else {
+                    _this.waterLevelLabels.push(entity);
+                  }
                 } else if (entity.name === "Submerged area") {
                   // 一开始加载出了不显示该区域
                   entity.show = false;

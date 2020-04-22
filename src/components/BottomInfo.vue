@@ -5,7 +5,7 @@
     <span class="info__item info__elevation">海拔:{{showElevation}}</span>
     <!--     <span class="info__item info__height">高度:{{showCameraHeight}}</span> -->
     <span class="info__item info__heading">方向:{{showHeading}}</span>
-    <span class="info__item info__pitch">俯视角:{{showPitch}}</span>
+<!--       <span class="info__item info__pitch">俯视角:{{showPitch}}</span> -->
   </div>
 </template>
 

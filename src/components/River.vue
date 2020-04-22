@@ -58,7 +58,6 @@ export default {
     var _this = this;
     // 监听上升下降事件
     Bus.$on("update-river-height", (index, height) => {
-      console.log(_this.rivers);
 
       _this.updateHeight(_this.rivers[index].entity, height);
     });

@@ -22,7 +22,7 @@ const data =
         "min": 1.35,
         "current": 1.0,
         "range": 0.1,
-        "curstep": 0.1,
+        "curstep": 0.08,
         "step": 0.1
       }
     },
@@ -76,7 +76,7 @@ export default new Vuex.Store({
     selectedEntity: null, // 当前被选中的实体
     // riverData: [], // 河流水位水速数据
     riverData: data, // 河流水位水速数据
-    warningLevel: [0, 3, 5, 7, 10, 100],// 预警等级
+    warningLevel: [0, 2, 3, 4, 5, 100],// 预警等级
     currentWarningLevel: 0, // 当前预警等级
     isAI: false, // 当前是否是智能模式
     isRain: false, // 当前是否在下雨
@@ -94,16 +94,19 @@ export default new Vuex.Store({
       state.riverData.forEach(el => {
         el.speed.min += el.speed.curstep
         el.level.min += el.level.curstep
-        el.speed.current = el.speed.speed
+        el.speed.current = el.speed.min
         el.level.current = el.level.min
       })
     },
     // 降低水位
     downWaterHeight(state) {
       // state.waterHeight += 1
+
       state.riverData.forEach(el => {
-        el.speed.min -= 0.01
-        el.level.min -= 0.01
+        el.speed.min -= 0.02
+        el.level.min -= 0.02
+        el.speed.current = el.speed.min
+        el.level.current = el.level.min
       })
     },
     // 降低给定值的水位
@@ -112,6 +115,8 @@ export default new Vuex.Store({
       state.riverData.forEach(el => {
         el.speed.min -= num
         el.level.min -= num
+        el.speed.current = el.speed.min
+        el.level.current = el.level.min
       })
     },
     // 更新河流高度，流速的步长
@@ -173,11 +178,11 @@ export default new Vuex.Store({
         = state.warningLevel.findIndex(el => el > num) - 1
     },
     // 是否将当前状态设置为智能预警模式
-    updateAIStatus(state, checked){
+    updateAIStatus(state, checked) {
       state.isAI = checked
     },
     // 更新下雨状态
-    updateRainStatus(state, checked){
+    updateRainStatus(state, checked) {
       state.isRain = checked
     }
   },
@@ -222,15 +227,16 @@ export default new Vuex.Store({
     },
     // 显示外河水位
     showOutlandWaterLevel(state) {
-      return state.riverData[2].level.current.toFixed(2)
+      return state.riverData[2].level.current.toFixed(3)
     },
     // 显示内河水位
     showInlandWaterLevel(state) {
-      return state.riverData[1].level.current.toFixed(2)
+      return state.riverData[1].level.current.toFixed(3)
     },
     // 获取当前预警等级,num为当前降水量
     getCurrentWarningLevel: (state) => (num) => {
-      return state.warningLevel.findIndex(el => el > num) - 1
+      var index =  state.warningLevel.findIndex(el => el > num) - 1
+      return index > 0 ? index : 0
     },
   },
   actions: {

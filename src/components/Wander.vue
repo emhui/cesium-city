@@ -13,12 +13,12 @@
       <!--       <a-button size="small" @click="startWander">开始</a-button> -->
       <a-dropdown>
         <a-menu slot="overlay" @click="startWander">
-          <a-menu-item key="0">内河</a-menu-item>
-          <a-menu-item key="1">外河</a-menu-item>
-          <a-menu-item key="2">水渠</a-menu-item>
+          <a-menu-item key="1">内河</a-menu-item>
+          <a-menu-item key="2">外河</a-menu-item>
+          <a-menu-item key="3">水渠</a-menu-item>
         </a-menu>
         <a-button size="small">
-          开始
+          {{showRouterName}}
           <a-icon type="down" />
         </a-button>
       </a-dropdown>
@@ -73,7 +73,8 @@ export default {
         width: "220px"
       },
       wanderStatus: "暂停",
-      routers: ["内河", "外河", "水渠"]
+      routerIndex: 0, // 当前漫游的下标
+      routers: ["开始", "内河", "外河", "水渠"]
     };
   },
   methods: {
@@ -81,10 +82,6 @@ export default {
       this.showCard = false;
     },
     mousedown(event) {
-      console.log(event);
-
-      // this.selectElement = document.getElementById("card1");
-
       this.selectElement = this.$refs.card.$el;
       var div1 = this.selectElement;
       this.selectElement.style.cursor = "move";
@@ -103,7 +100,6 @@ export default {
       };
     },
     flyToInitPoint() {
-      this.clearWander();
       viewer.clock.shouldAnimate = true;
       // 飞行
       viewer.scene.camera.flyTo({
@@ -117,9 +113,16 @@ export default {
     },
     startWander(e) {
       this.$message.success(`开始巡检${this.routers[e.key]}`);
+      this.clearWander();
+      this.routerIndex = e.key;
       this.flyToInitPoint();
+      Bus.$emit("play-video-2");
+      Bus.$emit("show-others-river");
       var _this = this;
       setTimeout(function() {
+        // 关闭地形检测
+        viewer.scene.globe.depthTestAgainstTerrain = false;
+
         _this.flyExtent();
       }, 7000);
     },
@@ -140,7 +143,11 @@ export default {
         viewer.clock.onTick.removeEventListener(this.Exection2);
         this.Exection2 = null;
       }
+      this.routerIndex = 0;
       this.marksIndex = 1;
+      Bus.$emit("pause-video-2");
+      Bus.$emit("hide-others-river");
+      viewer.scene.globe.depthTestAgainstTerrain = true;
     },
     flyExtent() {
       // 相机看点的角度，如果大于0那么则是从地底往上看，所以要为负值
@@ -305,9 +312,9 @@ export default {
             .add(Cesium.KmlDataSource.load(data.url, options))
             .then(dataSources => {
               dataSources.entities.values.forEach(entity => {
-/*                 entity.polyline.heightReference =
+                /*                 entity.polyline.heightReference =
                   Cesium.HeightReference.CLAMP_TO_GROUND; */
-                  entity.show = false
+                entity.show = false;
                 // 设置一下路径贴地
                 // entity.polyline.clampToGround = new ConstantProperty(true);
                 var positions = entity.polyline.positions._value;
@@ -329,7 +336,6 @@ export default {
   computed: {
     showStatus() {
       try {
-        console.log(viewer.clock.shouldAnimate);
         if (viewer.clock.shouldAnimate) {
           return "暂停";
         } else {
@@ -338,6 +344,9 @@ export default {
       } catch (error) {
         return "暂停";
       }
+    },
+    showRouterName() {
+      return this.routers[this.routerIndex];
     }
   }
 };

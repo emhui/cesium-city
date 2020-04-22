@@ -62,11 +62,12 @@ export default {
       switch (key) {
         case "weather":
           Bus.$emit("update-rain", checked);
+          this.updateRainStatus(checked);
           Bus.$emit("show-river-data-pop", checked);
-          this.updateRainStatus(checked)
           break;
         case "warning":
-          this.updateAIStatus(checked)
+          this.updateAIStatus(checked);
+          Bus.$emit("show-river-data-pop", checked);
           break;
         case "video":
           Bus.$emit("open-video", checked);
@@ -112,28 +113,28 @@ export default {
           Bus.$emit("show-hide-model", checked);
           break;
         case "shuizhan":
-          Bus.$emit("show-hide-shuizhan", checked)
+          Bus.$emit("show-hide-shuizhan", checked);
           break;
         case "bengfang":
-          Bus.$emit("show-hide-bengfang", checked)
+          Bus.$emit("show-hide-bengfang", checked);
           break;
         case "zhiyuanfa":
-          Bus.$emit("show-hide-zhiyuanfa", checked)
+          Bus.$emit("show-hide-zhiyuanfa", checked);
           break;
         case "terrain":
           viewer.scene.globe.depthTestAgainstTerrain = checked;
           break;
         case "photography":
-          this.$message.warning("开发中...");
+          Bus.$emit("show-hide-photography", checked);
           break;
         case "yaojiang":
-          Bus.$emit("show-hide-yuyaojiang", checked)
+          Bus.$emit("show-hide-yuyaojiang", checked);
           break;
         case "cijiang":
-          Bus.$emit("show-hide-cijiang", checked)
+          Bus.$emit("show-hide-cijiang", checked);
           break;
         case "canal":
-          Bus.$emit("show-hide-canal", checked)
+          Bus.$emit("show-hide-canal", checked);
           break;
         default:
           break;

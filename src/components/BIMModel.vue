@@ -12,8 +12,12 @@
 
       <p>实际闸高： {{ showHeight }}m</p>
       <p>外河水位： {{ showOutlandWaterLevel}}m</p>
-      <p>闸门状态： {{showStatus}}</p>
-      <p>控制模式： {{ showControlMode}}</p>
+      <p>闸门状态： {{ showStatus }}</p>
+      <template class="ant-card-actions">
+        控制模式： 自动
+        <a-divider type="vertical" />
+        <a-switch defaultChecked size="small" />
+      </template>
       <template class="ant-card-actions" slot="actions">
         <a-button @click="openGate">提升</a-button>
         <a-button @click="closeGate">降落</a-button>
@@ -78,8 +82,8 @@ export default {
         viewer.flyTo(_this.valveList[1].entity, {
           offset: {
             heading: Cesium.Math.toRadians(90.0),
-            pitch: Cesium.Math.toRadians(-25),
-            range: 100
+            pitch: Cesium.Math.toRadians(0),
+            range: 60
           }
         });
     });
@@ -114,24 +118,34 @@ export default {
       this.selectedIndex = index;
       this.selectedStatue = this.valveList[index].status;
       this.selectedHeight = this.valveList[index].currentHeight;
-      console.log(this.selectedHeight, this.valveList[index]);
 
       this.show = true;
     });
 
     Bus.$on("show-hide-model", checked => {
       _this.bims.forEach(bim => {
-        bim.show = checked;
+        if (bim) {
+          bim.show = checked;
+        }
+      });
+      _this.valveList.forEach(valve => {
+        valve.entity.show = checked;
       });
     });
     Bus.$on("show-hide-shuizhan", checked => {
       _this.bims[0].show = checked;
+      for (let i = 0; i++; i < 4){
+        _this.valveList[i].entity.show = checked
+      }
     });
     Bus.$on("show-hide-bengfang", checked => {
       _this.bims[1].show = checked;
     });
     Bus.$on("show-hide-zhiyuanfa", checked => {
-      _this.bim[2].show = checked;
+      _this.bims[2].show = checked;
+      for (let i = 4; i++; i < 7){
+        _this.valveList[i].entity.show = checked
+      }
     });
 
     Bus.$on("auto-open-gate", index => {
@@ -139,7 +153,10 @@ export default {
       try {
         if (_this.valveList[index].status === -1 && index !== -1) {
           _this.$message.warning(
-            `达到${index + 1}预警,正在开启${index + 1}号闸门`
+            // `达到${index + 1}预警,正在开启${index + 1}号闸门`
+            `已超出当前“未来三天强将雨期”的${index +
+              1}级预警闽值0.5米，准备自动开启${index +
+              1}号闸门，系统已发送短信和微信通知相关责任人员`
           );
           _this.autoOpenGate(index);
           _this.setValvesStatus({ index: index, checked: true });
@@ -248,12 +265,12 @@ export default {
     },
     autoOpenGate(index) {
       var _this = this;
-      Bus.$emit("hide-rain");
+      // Bus.$emit("hide-rain");
       viewer
         .flyTo(this.valveList[index].entity, {
           offset: {
             heading: Cesium.Math.toRadians(90.0),
-            pitch: Cesium.Math.toRadians(-15),
+            pitch: Cesium.Math.toRadians(0),
             range: 60
           }
         })
@@ -264,7 +281,7 @@ export default {
           this.downWaterHeightByNum(0.5);
           setTimeout(() => {
             if (_this.isRain) {
-              Bus.$emit("show-rain");
+              //  Bus.$emit("show-rain");
             }
           }, 5000);
         });
@@ -281,7 +298,7 @@ export default {
       valve.entity.polygon.height = property;
       valve.status = 1;
     },
-    AI(index) {
+    /*     AI(index) {
       var _this = this;
       Bus.$emit("hide-rain");
       viewer
@@ -309,7 +326,7 @@ export default {
             Bus.$emit("show-rain");
           }, 5000);
         });
-    },
+    }, */
     closeZM(index) {
       var valve = this.valveList[index];
       var property = new Cesium.CallbackProperty(() => {
@@ -333,6 +350,7 @@ export default {
         }
         // 发送到
         Bus.$emit("update-river-data");
+
         // 打开闸门降低水面
         this.downWaterHeight();
         return valve.currentHeight;
@@ -430,8 +448,8 @@ export default {
         return "关闭";
       }
     },
-    showControlMode(){
-      return this.isAI ? "自动" : "手动"
+    showControlMode() {
+      return this.isAI ? "自动" : "手动";
     }
   },
   /*   filters: {

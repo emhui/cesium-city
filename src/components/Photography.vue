@@ -1,6 +1,5 @@
 <template>
   <div>
-    <button @click="fly" style="z-index:1000">飞行</button>
   </div>
 </template>
 
@@ -12,29 +11,47 @@ var Cesium = require("cesium/Cesium");
 let viewer = null;
 export default {
   props: ["data"],
+  data() {
+    return {
+      tilesets: [] // 添加倾斜摄影
+    };
+  },
   mounted() {
+    var _this = this
     viewer = this.$store.state.viewer;
     this.addPhotography();
+    Bus.$on("show-hide-photography", checked => {
+      viewer.flyTo(_this.tilesets[0],{
+          offset: {
+            heading: Cesium.Math.toRadians(28.0),
+            pitch: Cesium.Math.toRadians(-25),
+            range: 0
+          }
+        })
+      _this.tilesets.forEach(tileset => {
+        tileset.show = checked;
+      });
+    });
   },
   methods: {
     fly() {
-        console.log("飞行");
-        console.log(this.photo);
-        
       viewer.zoomTo(this.photo);
     },
     addPhotography() {
+      var _this = this;
       this.data.forEach(element => {
         if (element.type === "photography") {
-          this.photo = viewer.scene.primitives.add(
+          var photo = viewer.scene.primitives.add(
             new Cesium.Cesium3DTileset({
-              url: element.url
+              url: element.url,
+              show: false
             })
           );
+          _this.tilesets.push(photo);
         }
       });
     },
-    modifyHeight() {
+/*     modifyHeight() {
       var boundingSphere = this.tileset.boundingSphere; // 获取模型的边界范围
       var cartographic = Cesium.Cartographic.fromCartesian(
         boundingSphere.center
@@ -58,7 +75,7 @@ export default {
       ); // 计算两个笛卡尔坐标之间的差值
 
       this.tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation); // 从一个笛卡尔坐标创建一个matrix4的实例
-    }
+    } */
   }
 };
 </script>

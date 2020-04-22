@@ -1,6 +1,6 @@
 [
   {
-    "title": "实时数据",
+    "title": "实时水情",
     "key": "0-0",
     "checked": false,
     "children": [
@@ -17,7 +17,7 @@
         "checked": false
       },
       {
-        "title": "实时视频",
+        "title": "监控视频",
         "key": "0-0-2",
         "value": "video",
         "checked": false
@@ -137,7 +137,7 @@
             "checked": true
           },
           {
-            "title": "支援阀",
+            "title": "支援闸",
             "key": "0-2-0-2",
             "value": "zhiyuanfa",
             "checked": true
@@ -148,7 +148,7 @@
         "title": "倾斜摄影",
         "key": "0-2-1",
         "value": "photography",
-        "checked": true
+        "checked": false
       },
       {
         "title": "河流",
