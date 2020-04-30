@@ -31,7 +31,7 @@
         "id": "3",
         "name": "宁波-河流",
         "type": "river",
-        "url": "http://127.0.0.1:9090/public/river/ningbo_river_final6.kmz",
+        "url": "http://127.0.0.1:9090/public/river/ningbo_river_final9.kmz",
         "desc": "河流引用的是kml数据"
     },
     {

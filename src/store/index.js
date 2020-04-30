@@ -101,7 +101,8 @@ export default new Vuex.Store({
     // 降低水位
     downWaterHeight(state) {
       // state.waterHeight += 1
-
+      // 降低水位 0.02
+      // 降低水位 0.01
       state.riverData.forEach(el => {
         el.speed.min -= 0.02
         el.level.min -= 0.02

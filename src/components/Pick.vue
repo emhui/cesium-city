@@ -75,7 +75,8 @@ export default {
           nameOverlay.style.bottom =
             viewer.canvas.clientHeight - movement.endPosition.y + "px";
           nameOverlay.style.left = movement.endPosition.x + "px";
-          var name = pickedEntity.name;
+          // 这里把“闸”写成了“阀”，所以对字符串进行一下处理
+          var name = pickedEntity.name.replace('阀', '闸');
           if (!Cesium.defined(name)) {
             name = pickedFeature.getProperty("id");
           }

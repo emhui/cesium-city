@@ -80,7 +80,7 @@
         ]
       },
       {
-        "title": "支援阀控制",
+        "title": "支援闸控制",
         "key": "0-1-2",
         "value": "support-gate",
         "checked": false,

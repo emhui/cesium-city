@@ -14,9 +14,9 @@
       <p>外河水位： {{ showOutlandWaterLevel}}m</p>
       <p>闸门状态： {{ showStatus }}</p>
       <template class="ant-card-actions">
-        控制模式： 自动
+        控制模式： {{controlStatus}}
         <a-divider type="vertical" />
-        <a-switch defaultChecked size="small" />
+        <a-switch defaultChecked size="small" @change="changeControlStatus" />
       </template>
       <template class="ant-card-actions" slot="actions">
         <a-button @click="openGate">提升</a-button>
@@ -59,7 +59,8 @@ export default {
         left: "200px",
         top: "4em",
         width: "220px"
-      }
+      },
+      controlStatus: "自动"
     };
   },
   mounted() {
@@ -134,8 +135,9 @@ export default {
     });
     Bus.$on("show-hide-shuizhan", checked => {
       _this.bims[0].show = checked;
-      for (let i = 0; i++; i < 4){
-        _this.valveList[i].entity.show = checked
+      
+      for (let i = 0; i < 4; i++) {
+        _this.valveList[i].entity.show = checked;
       }
     });
     Bus.$on("show-hide-bengfang", checked => {
@@ -143,8 +145,8 @@ export default {
     });
     Bus.$on("show-hide-zhiyuanfa", checked => {
       _this.bims[2].show = checked;
-      for (let i = 4; i++; i < 7){
-        _this.valveList[i].entity.show = checked
+      for (let i = 4; i < 7; i++) {
+        _this.valveList[i].entity.show = checked;
       }
     });
 
@@ -415,6 +417,13 @@ export default {
         valve.status !== -1 && num++;
       });
       return num;
+    },
+    changeControlStatus(checked, event) {
+      if (checked) {
+        this.controlStatus = "自动";
+      } else {
+        this.controlStatus = "手动";
+      }
     },
     ...mapMutations([
       "addValves",
