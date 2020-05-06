@@ -75,5 +75,26 @@
         "type": "photography",
         "url": "http://127.0.0.1:9090/public/nbcj/osgb/tileset.json",
         "desc": ""
+    },
+    {
+        "id": "10",
+        "name": "影像服务",
+        "type": "image",
+        "url": "http://mt0.google.cn/vt/lyrs=s&hl=zh-CN&x={x}&y={y}&z={z}",
+        "desc": "一个影像url链接地址"
+    },
+    {
+        "id": "11",
+        "name": "Cesium账户的token值",
+        "type": "token",
+        "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxOTFkYWQwOS1lNTc2LTRiNWEtYWViYy1kMWRlYTMwMThmYmYiLCJpZCI6MTQyMTgsInNjb3BlcyI6WyJhc3IiLCJnYyJdLCJpYXQiOjE1NjUwNTg3Mjh9.-i_ptqSPUBS0xhew3bh5F66IdlYY1Kz_CZ5UkN1-0a0",
+        "desc": "此值可不进行改动"
+    },
+    {
+        "id": "12",
+        "name": "洪涝范围",
+        "type": "flood",
+        "url": "http://127.0.0.1:9090/public/river/flood.kml",
+        "desc": "飞行漫游路径数据"
     }
 ]

@@ -16,6 +16,7 @@
       <pump></pump>
       <photography :data="data"></photography>
       <river-data-pop></river-data-pop>
+      <flood :data="data"></flood>
     </div>
   </div>
 </template>
@@ -50,17 +51,19 @@ export default {
   mounted() {
     var _this = this;
     this.$http.get("data/data.json").then(response => {
-      _this.data = response.data;
-      _this.initViewer();
+      this.data = response.data;
+      this.initViewer();
     });
 
     Bus.$on("back-home", checked => {
       checked && this.setInitPosistion();
     });
   },
-  methods: {
+  methods:
+   {
     ...mapMutations(["setViewer"]),
     initViewer() {
+      this.setToken()
       viewer = new Cesium.Viewer("cesiumContainer", {
         geocoder: false, // 屏蔽定位搜索框
         navigationHelpButton: false, // 屏蔽默认的导航帮助框
@@ -71,6 +74,7 @@ export default {
         animation: false,
         infoBox: false // 屏蔽默认创建的infooxbo组件，使用自己的弹窗
       });
+      this.setViewer(viewer);
       this.loaded = true;
       viewer.terrainProvider = this.addTerrain();
       this.addImage(); // 添加影像
@@ -78,7 +82,6 @@ export default {
       // 重写homebuttom事件
       this.setHomeButton();
       // viewer.extend(Cesium.viewerCesiumInspectorMixin);
-      this.setViewer(viewer);
       // this.$store.state.viewer = viewer;
       // 关闭这个防止水和BIM模型被遮挡
       viewer.scene.globe.depthTestAgainstTerrain = true;
@@ -131,12 +134,23 @@ export default {
       return terrainProvider;
     },
     addImage() {
-      var google = new Cesium.UrlTemplateImageryProvider({
-        url: "http://mt0.google.cn/vt/lyrs=s&hl=zh-CN&x={x}&y={y}&z={z}",
-        tilingScheme: new Cesium.WebMercatorTilingScheme(),
-        maximumLevel: 20
+      this.data.forEach(element => {
+        if (element.type === "image") {
+          var google = new Cesium.UrlTemplateImageryProvider({
+            url: element.url,
+            tilingScheme: new Cesium.WebMercatorTilingScheme(),
+            maximumLevel: 20
+          });
+          viewer.imageryLayers.addImageryProvider(google);
+        }
       });
-      viewer.imageryLayers.addImageryProvider(google);
+    },
+    setToken() {
+      this.data.forEach(element => {
+        if (element.type === "token") {
+          Cesium.Ion.defaultAccessToken = element.value;
+        }
+      });
     },
     // 重新homebutton事件
     setHomeButton() {
@@ -165,7 +179,8 @@ export default {
     UpdateData: () => import("../components/UpdateData"), // 每秒更新一次数据
     Photography: () => import("../components/Photography"),
     Pump: () => import("../components/Pump"),
-    RiverDataPop: () => import("../components/RiverDataPop") // 河流水位的弹窗
+    RiverDataPop: () => import("../components/RiverDataPop"), // 河流水位的弹窗
+    Flood: () => import("../components/Flood")
   }
 };
 </script>

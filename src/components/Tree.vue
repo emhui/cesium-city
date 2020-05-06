@@ -136,6 +136,9 @@ export default {
         case "canal":
           Bus.$emit("show-hide-canal", checked);
           break;
+        case "flood":
+          Bus.$emit("show-flood-dashborard", checked);
+          break;
         default:
           break;
       }
