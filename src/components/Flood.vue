@@ -101,11 +101,22 @@ export default {
 
       this.floodEntity.polygon.extrudedHeight = property;
     },
+    pause() {
+      var property = new Cesium.CallbackProperty(() => {
+        return this.currentHeight;
+      }, false);
+
+      this.floodEntity.polygon.extrudedHeight = property;
+    },
     onStartFlood(e) {
       var checked = e.target.checked;
       console.log(checked);
-
-      checked && this.addHeight();
+    if(checked) {
+        this.addHeight()
+    }else{
+        this.pause()
+    }
+      // checked && this.addHeight();
     },
     btnReset() {
       this.currentHeight = this.minHeight;
